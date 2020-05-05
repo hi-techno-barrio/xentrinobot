@@ -31,7 +31,7 @@ case $DEBIAN_VERSION in
     ;;
 esac
 
-   echo lllInstalling ros-$ROS_DISTRO
+   echo Installing ros-$ROS_DISTRO
    sudo apt-get update
 
    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
