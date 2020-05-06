@@ -90,6 +90,11 @@ echo "#####################################################################"
 echo "#       ROS $(rosversion -d) Successful Instalation!                #"
 echo "#####################################################################"  
 
+
+echo "#####################################################################"
+echo "#             Adding ROS libraries"                                 #"
+echo "#####################################################################" 
+
    sudo apt-get update
    sudo apt-get install -y \
    avahi-daemon \
@@ -104,31 +109,51 @@ echo "#####################################################################"
    sudo rm -rf $HOME_DIR/.platformio/
 
 echo "#####################################################################"
-echo "#    building workspace catkin                                      #"
+echo "#           building workspace catkin                               #"
 echo "#####################################################################" 
     cd $HOME_DIR
     cd ~/xentrinobot_ws/   
-   # sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/melodic -j2
-    catkin_init_workspace
+     # sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/melodic -j2
+    sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/$ROS_DISTRO -j2
+
+echo "#####################################################################"
+echo "#          source the new installation                              #"
+echo "#####################################################################" 
+    #catkin_init_workspace
     source /opt/ros/$ROS_DISTRO/setup.bash
     echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
     source ~/.bashrc 
 
-echo "#####################################################################"
-echo "#             Adding ROS libraries"                                 #"
-echo "#####################################################################" 
 
- cd $HOME_DIR
-      mkdir -p ~/xentrinobot_ws/external_src
 
- cd ~/xentrinobot_ws/external_src  
-       wget http://sourceforge.net/projects/assimp/files/assimp-3.1/assimp-3.1.1_no_test_models.zip/download -O assimp-3.1.1_no_test_models.zip  
-       unzip assimp-3.1.1_no_test_models.zip  
-     
- cd assimp-3.1.1  
-       cmake .   
-       make  
-       sudo make install
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
