@@ -21,7 +21,11 @@ case $DEBIAN_VERSION in
     #ROSDISTRO=kinetic
     export ROS_DISTRO=kinetic
     ;;
-
+   wheezy )
+    echo -n "ros-indigo"
+    #ROSDISTRO=kinetic
+    export ROS_DISTRO=indigo
+    ;;
   buster)
     echo -n "ros-melodic"
     #ROSDISTRO=melodic
