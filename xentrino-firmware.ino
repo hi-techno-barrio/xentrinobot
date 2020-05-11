@@ -26,18 +26,7 @@ PSCoE-Computer Engineering Society.
 #include <ros/time.h>
 #include "robot_specs.h"
 
-//Motor Shield headers
 #include <Wire.h>
-#include <Adafruit_MotorShield.h>
-#include "utility/Adafruit_PWMServoDriver.h"
-
-#define encodPinA1      3     // encoder A pin
-#define encodPinB1      8     // encoder B pin
-#define encodPinA2      2
-#define encodPinB2      7
-#define LOOPTIME        100   // PID loop time(ms)
-#define SMOOTH      10
-
 #define sign(x) (x > 0) - (x < 0)
 
 
