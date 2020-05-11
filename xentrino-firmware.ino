@@ -98,7 +98,7 @@ ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
 
 geometry_msgs::Vector3Stamped rpm_msg;
 
-ros::Publisher rpm_pub("rpm", &rpm_msg);
+ros::Publisher rpm_pub("rpm", &raw_vel_msg);
 
 ros::Time current_time;
 ros::Time last_time;
