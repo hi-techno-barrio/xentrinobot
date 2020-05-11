@@ -1,3 +1,5 @@
+
+
 /*
 Christopher Coballes
 ROS-Philippines
@@ -13,6 +15,20 @@ PSCoE-Computer Engineering Society.
 
 */
 
+//ROS headers
+#if (ARDUINO >= 100)
+ #include <Arduino.h>
+#else
+ #include <WProgram.h>
+#endif
+#include <ros.h>
+#include <geometry_msgs/Vector3Stamped.h>
+#include <geometry_msgs/Twist.h>
+#include <ros/time.h>
+#include "robot_specs.h"
+
+//Motor Shield headers
+#include <Wire.h>
 
 void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
   double linear_x  = cmd_msg.linear.x;
