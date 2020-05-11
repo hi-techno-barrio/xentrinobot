@@ -1,3 +1,14 @@
+/*
+Christopher Coballes
+ROS-Philippines
+Hi-Techno Barrio
+
+Project: XentrinoBot
+Funded by: TAPI-DOST
+
+*/
+
+
 void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
   double linear_x  = cmd_msg.linear.x;
   double angular_z = cmd_msg.angular.z;
