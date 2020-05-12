@@ -15,6 +15,11 @@ PSCoE-Computer Engineering Society.
 
 */
 
+//  Christopher Coballes
+// Hi-Techno Barrio
+//
+//   
+
 //ROS headers
 #if (ARDUINO >= 100)
  #include <Arduino.h>
@@ -22,9 +27,10 @@ PSCoE-Computer Engineering Society.
  #include <WProgram.h>
 #endif
 #include <ros.h>
+#include <ros/time.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <geometry_msgs/Twist.h>
-#include <ros/time.h>
+
 #include "robot_specs.h"
 #include "Encoder.h"
 
@@ -45,6 +51,28 @@ int Lbase;
 int Xbase;
 }  p, y;
 */
+struct rpm
+  {
+   int motor1;
+   int motor2;
+   int motor3;
+   int motor4;
+};
+        
+struct velocities
+ {
+    float linear_x;
+    float linear_y;
+    float angular_z;
+ };
+
+struct pwm
+  {
+  int motor1;
+  int motor2;
+  int motor3;
+  int motor4;
+  };
 float g_req_linear_vel_x = 0;
 float g_req_linear_vel_y = 0;
 float g_req_angular_vel_z = 0;
@@ -57,14 +85,18 @@ float Ki =   0;
 Encoder encoder1(2, 17);
 Encoder encoder2(3, 15);
 
+void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg);
+
 ros::NodeHandle nh;
+//ros::Subscriber<geometry_msgs::Twist> cmd_sub("cmd_vel", commandCallback);
 ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
 
-geometry_msgs::Vector3Stamped rpm_msg;
-ros::Publisher rpm_pub("rpm", &rpm_msg);
+geometry_msgs::Vector3Stamped real_vel_msg;
+//ros::Publisher raw_vel_pub("raw_vel", &raw_vel_msg);
+ros::Publisher rpm_pub("rpm", &real_vel_msg);
 
-ros::Time current_time;
-ros::Time last_time;
+// ros::Time current_time;
+// ros::Time last_time;
 
 void setup() {
 
@@ -76,8 +108,12 @@ void setup() {
 }
 
 void loop() {
+static unsigned long prev_control_time = 0;
+static unsigned long prev_imu_time = 0;
+static unsigned long prev_debug_time = 0;
 
 runROS();
+printDebug(TRUE);
   
 } // loop
 
@@ -100,7 +136,7 @@ void runROS()
 }
 
 
-
+/*
 void publishRPM(unsigned long time) {
   rpm_msg.header.stamp = nh.now();
   rpm_msg.vector.x = rpm_act1;
@@ -109,7 +145,7 @@ void publishRPM(unsigned long time) {
   rpm_pub.publish(&rpm_msg);
   nh.spinOnce();
 }
-
+*/
 
 void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
   double g_req_linear_vel_x  = cmd_msg.linear.x;
@@ -119,10 +155,11 @@ void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
 }
 
 
-void IF_kinematics(float linear_Vx,float linear_Vy,float angular_Vz)
+struct  IF_kinematics(float linear_Vx,float linear_Vy,float angular_Vz)
 {
   int rpm_req1;
   int rpm_req2;
+ // struct rpm
   
 if (angular_Vz == 0) {     // go straight
     // convert m/s to rpm
@@ -143,9 +180,10 @@ if (angular_Vz == 0) {     // go straight
    return rpm;
 }
 
-void cmd_to_twist_VEL(int rpm1, int rpm2)
+struct cmd_to_twist_VEL(int rpm1, int rpm2)
  {
-    Kinematics::velocities vel;
+   // Kinematics::velocities vel;
+   //struct vel;
     float average_rps_x;
     float average_rps_y;
     float average_rps_a;
@@ -167,7 +205,7 @@ void cmd_to_twist_VEL(int rpm1, int rpm2)
 int computePid( double targetValue, double currentValue) {
   double pidTerm = 0;                            // PID correction
   double error = 0;
-  double new_Pwm = 0;
+  double new_PWM = 0;
 
   static double last_Error = 0;
   static double int_Error = 0;
@@ -207,7 +245,7 @@ void moveBase()
  // kinematics.getRPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
 
 // rpm =IF_kinematics(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
- IF_kinematics(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
+ IF_kinematics_RPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
 
     int current_rpm1 =  get_current_RPM (encoder1.read());
     int current_rpm2 =  get_current_RPM (encoder2.read());
@@ -223,15 +261,15 @@ void moveBase()
    
 
     Kinematics::velocities current_vel;
-    current_vel = kinematics.getVelocities(current_rpm1, current_rpm2);
+    current_vel = cmd_to_twist_VEL(current_rpm1, current_rpm2);
     
     //pass velocities to publisher object
-    raw_vel_msg.linear_x = current_vel.linear_x;
-    raw_vel_msg.linear_y = current_vel.linear_y;
-    raw_vel_msg.angular_z = current_vel.angular_z;
+    real_vel_msg.linear_x = current_vel.linear_x;
+    real_vel_msg.linear_y = current_vel.linear_y;
+    real_vel_msg.angular_z = current_vel.angular_z;
 
     //publish raw_vel_msg
-    raw_vel_pub.publish(&raw_vel_msg);
+      rpm_pub.publish(&real_vel_msg);
 }
 
 void stopBase()
@@ -240,3 +278,37 @@ void stopBase()
     g_req_linear_vel_y = 0;
     g_req_angular_vel_z = 0;
 }
+
+void printDebug(boolean DEBUG)
+{
+    char buffer[50];
+    if(DEBUG)
+       {
+        if ((millis() - prev_debug_time) >= (1000 / DEBUG_RATE))
+        {
+              sprintf (buffer, "Encoder FrontLeft  : %ld", motor1_encoder.read());
+               nh.loginfo(buffer);
+               sprintf (buffer, "Encoder FrontRight : %ld", motor2_encoder.read());
+          nh.loginfo(buffer);
+            prev_debug_time = millis();
+        }
+     }  
+   
+}
+
+void Controller::spin(int pwm)
+{
+    
+            if(pwm > 0)
+            {
+                digitalWrite(motor_pinA_, HIGH);
+                digitalWrite(motor_pinB_, LOW);
+            }
+            else if(pwm < 0)
+            {
+                digitalWrite(motor_pinA_, LOW);
+                digitalWrite(motor_pinB_, HIGH);
+            }
+            analogWrite(pwm_pin_, abs(pwm));
+
+    }
