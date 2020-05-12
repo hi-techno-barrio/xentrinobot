@@ -14,6 +14,7 @@ ROS OpenSource Robotics
 PSCoE-Computer Engineering Society.
 
 */
+
 //ROS headers
 #if (ARDUINO >= 100)
  #include <Arduino.h>
@@ -25,13 +26,17 @@ PSCoE-Computer Engineering Society.
 #include <geometry_msgs/Twist.h>
 #include <ros/time.h>
 #include "robot_specs.h"
-#include "encoder.h"
+#include "Encoder.h"
+
 
 //Motor Shield headers
 #include <Wire.h>
 #define sign(x) (x > 0) - (x < 0)
 
+// #define ENCODER_OPTIMIZE_INTERRUPTS // comment this out on Non-Teensy boards
 
+#define COMMAND_RATE 20 //hz
+#define DEBUG_RATE 5
 /* 
 typedef enum robot
 {
@@ -53,6 +58,57 @@ Encoder encoder1(2, 17);
 Encoder encoder2(3, 15);
 
 ros::NodeHandle nh;
+ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
+
+geometry_msgs::Vector3Stamped rpm_msg;
+ros::Publisher rpm_pub("rpm", &rpm_msg);
+
+ros::Time current_time;
+ros::Time last_time;
+
+void setup() {
+
+ nh.initNode();
+ nh.getHardware()->setBaud(57600);
+ nh.subscribe(sub);
+ nh.advertise(rpm_pub);
+
+}
+
+void loop() {
+
+runROS();
+  
+} // loop
+
+
+void runROS()
+{
+
+//this block drives the robot based on defined rate
+    if ((millis() - prev_control_time) >= (1000 / COMMAND_RATE))
+    {
+        moveBase();
+        prev_control_time = millis();
+    }
+
+ //this block stops the motor when no command is received
+    if ((millis() - g_prev_command_time) >= 400)
+    {
+        stopBase();
+    }  
+}
+
+
+
+void publishRPM(unsigned long time) {
+  rpm_msg.header.stamp = nh.now();
+  rpm_msg.vector.x = rpm_act1;
+  rpm_msg.vector.y = rpm_act2;
+  rpm_msg.vector.z = double(time)/1000;
+  rpm_pub.publish(&rpm_msg);
+  nh.spinOnce();
+}
 
 
 void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
@@ -87,7 +143,7 @@ if (angular_Vz == 0) {     // go straight
    return rpm;
 }
 
-cmd_to_twist_VEL(int rpm1, int rpm2)
+void cmd_to_twist_VEL(int rpm1, int rpm2)
  {
     Kinematics::velocities vel;
     float average_rps_x;
@@ -107,63 +163,6 @@ cmd_to_twist_VEL(int rpm1, int rpm2)
 }
 
 
-ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
-
-geometry_msgs::Vector3Stamped rpm_msg;
-
-ros::Publisher rpm_pub("rpm", &rpm_msg);
-
-ros::Time current_time;
-ros::Time last_time;
-
-void setup() {
-
- nh.initNode();
- nh.getHardware()->setBaud(57600);
- nh.subscribe(sub);
- nh.advertise(rpm_pub);
-
-}
-
-void loop() {
-
-runROS();
-  
-} // loop
-
-
-runROS()
-{
-
-//this block drives the robot based on defined rate
-    if ((millis() - prev_control_time) >= (1000 / COMMAND_RATE))
-    {
-        moveBase();
-        prev_control_time = millis();
-    }
-
- //this block stops the motor when no command is received
-    if ((millis() - g_prev_command_time) >= 400)
-    {
-        stopBase();
-    }  
-}
-
-
-void getMotorData(unsigned long time)  {
- rpm_act1 = double((count1-countAnt1)*60*1000)/double(time*encoder_pulse*gear_ratio);
- rpm_act2 = double((count2-countAnt2)*60*1000)/double(time*encoder_pulse*gear_ratio);
- countAnt1 = count1;
- countAnt2 = count2;
-}
-void publishRPM(unsigned long time) {
-  rpm_msg.header.stamp = nh.now();
-  rpm_msg.vector.x = rpm_act1;
-  rpm_msg.vector.y = rpm_act2;
-  rpm_msg.vector.z = double(time)/1000;
-  rpm_pub.publish(&rpm_msg);
-  nh.spinOnce();
-}
 
 int computePid( double targetValue, double currentValue) {
   double pidTerm = 0;                            // PID correction
@@ -205,10 +204,11 @@ int get_current_RPM(long encoder_pulse ){
 
 void moveBase()
 {
-// kinematics.getRPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
+ // kinematics.getRPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
+
 // rpm =IF_kinematics(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
  IF_kinematics(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
-    
+
     int current_rpm1 =  get_current_RPM (encoder1.read());
     int current_rpm2 =  get_current_RPM (encoder2.read());
 
@@ -221,6 +221,7 @@ void moveBase()
     motor1_controller.spin(pwm_RPM1));
     motor2_controller.spin(pwm_RPM2));
    
+
     Kinematics::velocities current_vel;
     current_vel = kinematics.getVelocities(current_rpm1, current_rpm2);
     
