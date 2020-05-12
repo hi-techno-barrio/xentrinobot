@@ -15,13 +15,6 @@ PSCoE-Computer Engineering Society.
 
 */
 //ROS headers
-
-//  Christopher Coballes
-// Hi-Techno Barrio
-//
-//   bobbyorr (nice connection diagram) http://forum.pololu.com/viewtopic.php?f=15&t=1923
-
-//ROS headers
 #if (ARDUINO >= 100)
  #include <Arduino.h>
 #else
