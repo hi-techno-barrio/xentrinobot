@@ -32,8 +32,18 @@ PSCoE-Computer Engineering Society.
 #define sign(x) (x > 0) - (x < 0)
 
 
-unsigned long lastMilli = 0;       // loop timing 
-unsigned long lastMilliPub = 0;
+/* 
+typedef enum robot
+{
+int weel_diameter
+int Lbase;
+int Xbase;
+}  p, y;
+*/
+float g_req_linear_vel_x = 0;
+float g_req_linear_vel_y = 0;
+float g_req_angular_vel_z = 0;
+unsigned long g_prev_command_time = 0;
 
 float Kp =   0.5;
 float Kd =   0;
@@ -46,23 +56,31 @@ ros::NodeHandle nh;
 
 
 void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
-  double linear_x  = cmd_msg.linear.x;
-  double angular_z = cmd_msg.angular.z;
-  double linear_y  = cmd_msg.angular.y;  // zero
+  double g_req_linear_vel_x  = cmd_msg.linear.x;
+  double g_req_linear_vel_y = cmd_msg.angular.z;
+  double g_req_angular_vel_z  = cmd_msg.angular.y;  // zero
+ g_prev_command_time = millis();
+}
+
+
+void IF_kinematics(float linear_Vx,float linear_Vy,float angular_Vz)
+{
+  int rpm_req1;
+  int rpm_req2;
   
-if (angular_z == 0) {     // go straight
+if (angular_Vz == 0) {     // go straight
     // convert m/s to rpm
-    rpm_req1 = linear_x*60/(pi*wheel_diameter);
+    rpm_req1 = linear_Vx*60/(pi*wheel_diameter);
     rpm_req2 = rpm_req1;
   }
-  else if (linear_x == 0) {
+  else if (linear_Vx == 0) {
     // convert rad/s to rpm
-    rpm_req2 = angular_z*track_width*60/(wheel_diameter*pi*2);
+    rpm_req2 = angular_Vz*track_width*60/(wheel_diameter*pi*2);
     rpm_req1 = - rpm_req2;
   }
   else {
-    rpm_req1 = linear_x*60/(pi*wheel_diameter) - angular_z*track_width*60/(wheel_diameter*pi*2);
-    rpm_req2 = linear_x*60/(pi*wheel_diameter) + angular_z*track_width*60/(wheel_diameter*pi*2);
+    rpm_req1 = linear_Vx*60/(pi*wheel_diameter) - angular_Vz*track_width*60/(wheel_diameter*pi*2);
+    rpm_req2 = linear_Vx*60/(pi*wheel_diameter) + angular_Vz*track_width*60/(wheel_diameter*pi*2);
   }
    rpm.motor1 = constrain(rpm_req1, -max_rpm_, max_rpm_);
    rpm.motor2 = constrain(rpm_req2, -max_rpm_, max_rpm_);
@@ -187,24 +205,22 @@ int get_current_RPM(long encoder_pulse ){
 
 void moveBase()
 {
-  kinematics.getRPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
-
-    //get the current speed of each motor
-   // int current_rpm1 = motor1_encoder.getRPM();
-   // int current_rpm2 = motor2_encoder.getRPM();
+// kinematics.getRPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
+// rpm =IF_kinematics(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
+ IF_kinematics(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
     
     int current_rpm1 =  get_current_RPM (encoder1.read());
-    int current_rpm2 =  get_current_RPM (encoder1.read());
+    int current_rpm2 =  get_current_RPM (encoder2.read());
 
     //the required rpm is capped at -/+ MAX_RPM to prevent the PID from having too much error
     //the PWM value sent to the motor driver is the calculated PID based on required RPM vs measured RPM
-    pwm_RPM1 = motor1_pid.compute(req_rpm.motor1, current_rpm1));
-    pwm_RPM2 =  motor2_pid.compute(req_rpm.motor2, current_rpm2));
+    /* req_rpm.motor from the cmd_twist_RPM */
+    pwm_RPM1 = computePid(req_rpm.motor1, current_rpm1));
+    pwm_RPM2 = computePid(req_rpm.motor2, current_rpm2));
 
     motor1_controller.spin(pwm_RPM1));
     motor2_controller.spin(pwm_RPM2));
    
-
     Kinematics::velocities current_vel;
     current_vel = kinematics.getVelocities(current_rpm1, current_rpm2);
     
