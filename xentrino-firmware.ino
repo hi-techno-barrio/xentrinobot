@@ -15,6 +15,13 @@ PSCoE-Computer Engineering Society.
 
 */
 //ROS headers
+
+//  Christopher Coballes
+// Hi-Techno Barrio
+//
+//   bobbyorr (nice connection diagram) http://forum.pololu.com/viewtopic.php?f=15&t=1923
+
+//ROS headers
 #if (ARDUINO >= 100)
  #include <Arduino.h>
 #else
@@ -25,29 +32,24 @@ PSCoE-Computer Engineering Society.
 #include <geometry_msgs/Twist.h>
 #include <ros/time.h>
 #include "robot_specs.h"
+#include "encoder.h"
 
+//Motor Shield headers
 #include <Wire.h>
 #define sign(x) (x > 0) - (x < 0)
 
 
 unsigned long lastMilli = 0;       // loop timing 
 unsigned long lastMilliPub = 0;
-double rpm_req1 = 0;
-double rpm_req2 = 0;
-double rpm_act1 = 0;
-double rpm_act2 = 0;
 
-int PWM_val1 = 0;
-int PWM_val2 = 0;
-volatile long count1 = 0;          // rev counter
-volatile long count2 = 0;
-long countAnt1 = 0;
-long countAnt2 = 0;
 float Kp =   0.5;
 float Kd =   0;
 float Ki =   0;
-ros::NodeHandle nh;
 
+Encoder encoder1(2, 17);
+Encoder encoder2(3, 15);
+
+ros::NodeHandle nh;
 
 
 void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
@@ -98,7 +100,7 @@ ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
 
 geometry_msgs::Vector3Stamped rpm_msg;
 
-ros::Publisher rpm_pub("rpm", &raw_vel_msg);
+ros::Publisher rpm_pub("rpm", &rpm_msg);
 
 ros::Time current_time;
 ros::Time last_time;
@@ -109,9 +111,6 @@ void setup() {
  nh.getHardware()->setBaud(57600);
  nh.subscribe(sub);
  nh.advertise(rpm_pub);
-
- attachInterrupt(1, encoder1, RISING);
- attachInterrupt(0, encoder2, RISING);
 
 }
 
@@ -146,27 +145,6 @@ void getMotorData(unsigned long time)  {
  countAnt1 = count1;
  countAnt2 = count2;
 }
-
-
-int computePid(int command, double targetValue, double currentValue) {
-  double pidTerm = 0;                            // PID correction
-  double error = 0;
-  double new_pwm = 0;
-  double new_cmd = 0;
-  static double last_error = 0;
-  static double int_error = 0;
-
-  error = targetValue-currentValue;
-    int_error += error;
-    pidTerm = Kp*error + Kd*(error-last_error) + Ki*int_error;
-    last_erro1 = error;
-  
-  new_pwm = constrain(double(command)*MAX_RPM/4095.0 + pidTerm, -MAX_RPM, MAX_RPM);
-  new_cmd = 4095.0*new_pwm/MAX_RPM;
-  return int(new_cmd);
-}
-
-
 void publishRPM(unsigned long time) {
   rpm_msg.header.stamp = nh.now();
   rpm_msg.vector.x = rpm_act1;
@@ -176,59 +154,54 @@ void publishRPM(unsigned long time) {
   nh.spinOnce();
 }
 
-void encoder(int pinA , int pinB) 
-{
+int computePid( double targetValue, double currentValue) {
+  double pidTerm = 0;                            // PID correction
+  double error = 0;
+  double new_Pwm = 0;
 
-  A = digitalRead(pinA);
-  B = digitalRead(pinB);
+  static double last_Error = 0;
+  static double int_Error = 0;
 
-  if ((A==HIGH)&&(B==HIGH)) 
-        state = 1;
-  if ((A==HIGH)&&(B==LOW)) 
-       state = 2;
-  if ((A==LOW)&&(B==LOW)) 
-       state = 3;
-  if((A==LOW)&&(B==HIGH)) 
-       state = 4;
-       
-  switch (state)
-  {
-    case 1:
-    {
-      if (statep == 2) count++;
-      if (statep == 4) count--;
-      break;
-    }
-    case 2:
-    {
-      if (statep == 1) count--;
-      if (statep == 3) count++;
-      break;
-    }
-    case 3:
-    {
-      if (statep == 2) count --;
-      if (statep == 4) count ++;
-      break;
-    }
-    default:
-    {
-      if (statep == 1) count++;
-      if (statep == 3) count--;
-    }
-  }
-  statep = state; 
+  error = targetValue-currentValue;
+  int_Rrror += error;
+    
+  pidTerm = Kp*error + Ki*int_Error + Kd*(error-last_Error) ;
+  last_Error = error;
+  
+  new_PWM = constrain( pidTerm, -MAX_RPM, MAX_RPM);
+  
+  return new_PWM;
 }
 
+
+int get_current_RPM(long encoder_pulse ){
+    //long encoder_ticks = encoder.read();
+    encoder_ticks = encoder_pulse;
+    //this function calculates the motor's RPM based on encoder ticks and delta time
+    unsigned long current_time = millis();
+    unsigned long dt = current_time - prev_update_time_;
+
+    //convert the time from milliseconds to minutes
+    double dtm = (double)dt / 60000;
+    double delta_ticks = encoder_ticks - prev_encoder_ticks_;
+
+    //calculate wheel's speed (RPM)
+    prev_update_time_ = current_time;
+    prev_encoder_ticks_ = encoder_ticks;
+    
+    return (delta_ticks / counts_per_rev_) / dtm;
+  }
 
 void moveBase()
 {
   kinematics.getRPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
 
     //get the current speed of each motor
-    int current_rpm1 = motor1_encoder.getRPM();
-    int current_rpm2 = motor2_encoder.getRPM();
-
+   // int current_rpm1 = motor1_encoder.getRPM();
+   // int current_rpm2 = motor2_encoder.getRPM();
+    
+    int current_rpm1 =  get_current_RPM (encoder1.read());
+    int current_rpm2 =  get_current_RPM (encoder1.read());
 
     //the required rpm is capped at -/+ MAX_RPM to prevent the PID from having too much error
     //the PWM value sent to the motor driver is the calculated PID based on required RPM vs measured RPM
