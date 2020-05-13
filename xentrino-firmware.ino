@@ -21,11 +21,19 @@ PSCoE-Computer Engineering Society.
 //   
 
 //ROS headers
+
+//  Christopher Coballes
+// Hi-Techno Barrio
+//
+//   
+
+//ROS headers
 #if (ARDUINO >= 100)
  #include <Arduino.h>
 #else
  #include <WProgram.h>
 #endif
+#include <stdio.h>
 #include <ros.h>
 #include <ros/time.h>
 #include <geometry_msgs/Vector3Stamped.h>
@@ -51,6 +59,17 @@ int Lbase;
 int Xbase;
 }  p, y;
 */
+
+//struct robot
+//{
+//base robot_base
+ int max_rpm_;
+ float wheels_x_distance_;
+ float wheels_y_distance_;
+ float pwm_res_;
+ float wheel_circumference_;
+ int total_wheels_;
+//};
 struct rpm
   {
    int motor1;
@@ -73,6 +92,7 @@ struct pwm
   int motor3;
   int motor4;
   };
+  
 float g_req_linear_vel_x = 0;
 float g_req_linear_vel_y = 0;
 float g_req_angular_vel_z = 0;
@@ -108,19 +128,18 @@ void setup() {
 }
 
 void loop() {
-static unsigned long prev_control_time = 0;
-static unsigned long prev_imu_time = 0;
+
 static unsigned long prev_debug_time = 0;
 
 runROS();
-printDebug(TRUE);
+printDebug( 1 );
   
 } // loop
 
 
 void runROS()
 {
-
+static unsigned long prev_control_time = 0;
 //this block drives the robot based on defined rate
     if ((millis() - prev_control_time) >= (1000 / COMMAND_RATE))
     {
@@ -155,12 +174,13 @@ void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
 }
 
 
-struct  IF_kinematics(float linear_Vx,float linear_Vy,float angular_Vz)
+float  IF_kinematics_RPM( float   linear_Vx, float linear_Vy , float angular_Vz)
 {
   int rpm_req1;
   int rpm_req2;
- // struct rpm
-  
+  struct rpm rpm;
+  int  max_rpm_ ;
+ 
 if (angular_Vz == 0) {     // go straight
     // convert m/s to rpm
     rpm_req1 = linear_Vx*60/(pi*wheel_diameter);
@@ -177,12 +197,12 @@ if (angular_Vz == 0) {     // go straight
   }
    rpm.motor1 = constrain(rpm_req1, -max_rpm_, max_rpm_);
    rpm.motor2 = constrain(rpm_req2, -max_rpm_, max_rpm_);
-   return rpm;
+  // return  rpm ;
 }
 
-struct cmd_to_twist_VEL(int rpm1, int rpm2)
+void  cmd_to_twist_VEL( int rpm1,  int rpm2)
  {
-   // Kinematics::velocities vel;
+   struct velocities vel;
    //struct vel;
     float average_rps_x;
     float average_rps_y;
@@ -202,7 +222,8 @@ struct cmd_to_twist_VEL(int rpm1, int rpm2)
 
 
 
-int computePid( double targetValue, double currentValue) {
+int computePid( double targetValue, double currentValue) 
+{
   double pidTerm = 0;                            // PID correction
   double error = 0;
   double new_PWM = 0;
@@ -211,7 +232,7 @@ int computePid( double targetValue, double currentValue) {
   static double int_Error = 0;
 
   error = targetValue-currentValue;
-  int_Rrror += error;
+  int_Error += error;
     
   pidTerm = Kp*error + Ki*int_Error + Kd*(error-last_Error) ;
   last_Error = error;
@@ -222,9 +243,11 @@ int computePid( double targetValue, double currentValue) {
 }
 
 
-int get_current_RPM(long encoder_pulse ){
-    //long encoder_ticks = encoder.read();
-    encoder_ticks = encoder_pulse;
+int get_current_RPM(   long encoder_ticks )
+{
+   int counts_per_rev_;
+    unsigned long prev_update_time_;
+    long prev_encoder_ticks_;
     //this function calculates the motor's RPM based on encoder ticks and delta time
     unsigned long current_time = millis();
     unsigned long dt = current_time - prev_update_time_;
@@ -246,27 +269,28 @@ void moveBase()
 
 // rpm =IF_kinematics(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
  IF_kinematics_RPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
-
+     struct pwm pwm;
+     struct rpm req_rpm;
     int current_rpm1 =  get_current_RPM (encoder1.read());
     int current_rpm2 =  get_current_RPM (encoder2.read());
 
     //the required rpm is capped at -/+ MAX_RPM to prevent the PID from having too much error
     //the PWM value sent to the motor driver is the calculated PID based on required RPM vs measured RPM
     /* req_rpm.motor from the cmd_twist_RPM */
-    pwm_RPM1 = computePid(req_rpm.motor1, current_rpm1));
-    pwm_RPM2 = computePid(req_rpm.motor2, current_rpm2));
+    pwm.motor1 = computePid(req_rpm.motor1, current_rpm1);
+    pwm.motor2 = computePid(req_rpm.motor2, current_rpm2);
 
-    motor1_controller.spin(pwm_RPM1));
-    motor2_controller.spin(pwm_RPM2));
+//    motor1_controller.spin(pwm.motor1);
+ //   motor2_controller.spin(pwm.motor2);
    
 
-    Kinematics::velocities current_vel;
-    current_vel = cmd_to_twist_VEL(current_rpm1, current_rpm2);
+   struct velocities current_vel;
+//    current_vel = cmd_to_twist_VEL(current_rpm1, current_rpm2);
     
     //pass velocities to publisher object
-    real_vel_msg.linear_x = current_vel.linear_x;
-    real_vel_msg.linear_y = current_vel.linear_y;
-    real_vel_msg.angular_z = current_vel.angular_z;
+    real_vel_msg.x = current_vel.linear_x;
+    real_vel_msg.y = current_vel.linear_y;
+    real_vel_msg.z = current_vel.angular_z;
 
     //publish raw_vel_msg
       rpm_pub.publish(&real_vel_msg);
@@ -286,10 +310,11 @@ void printDebug(boolean DEBUG)
        {
         if ((millis() - prev_debug_time) >= (1000 / DEBUG_RATE))
         {
-              sprintf (buffer, "Encoder FrontLeft  : %ld", motor1_encoder.read());
+                sprintf (buffer, "Encoder FrontLeft  : %ld", motor1_encoder.read());
                nh.loginfo(buffer);
                sprintf (buffer, "Encoder FrontRight : %ld", motor2_encoder.read());
-          nh.loginfo(buffer);
+               nh.loginfo(buffer);
+               
             prev_debug_time = millis();
         }
      }  
