@@ -15,10 +15,6 @@ PSCoE-Computer Engineering Society.
 
 */
 
-//  Christopher Coballes
-// Hi-Techno Barrio
-//
-//   
 //ROS headers
 #if (ARDUINO >= 100)
  #include <Arduino.h>
