@@ -19,14 +19,6 @@ PSCoE-Computer Engineering Society.
 // Hi-Techno Barrio
 //
 //   
-
-//ROS headers
-
-//  Christopher Coballes
-// Hi-Techno Barrio
-//
-//   
-
 //ROS headers
 #if (ARDUINO >= 100)
  #include <Arduino.h>
@@ -70,6 +62,13 @@ int Xbase;
  float wheel_circumference_;
  int total_wheels_;
 //};
+struct port
+{
+ int pwm_pin;
+ int motor_pinA;
+ int motor_pinB;
+ };
+ 
 struct rpm
   {
    int motor1;
@@ -97,6 +96,11 @@ float g_req_linear_vel_x = 0;
 float g_req_linear_vel_y = 0;
 float g_req_angular_vel_z = 0;
 unsigned long g_prev_command_time = 0;
+unsigned long prev_debug_time  = 0;
+int counts_per_rev_  = 0;
+unsigned long prev_update_time_  = 0;
+long prev_encoder_ticks_  = 0;
+
 
 float Kp =   0.5;
 float Kd =   0;
@@ -115,8 +119,8 @@ geometry_msgs::Vector3Stamped real_vel_msg;
 //ros::Publisher raw_vel_pub("raw_vel", &raw_vel_msg);
 ros::Publisher rpm_pub("rpm", &real_vel_msg);
 
-// ros::Time current_time;
-// ros::Time last_time;
+ros::Time current_time;
+ros::Time last_time;
 
 void setup() {
 
@@ -174,7 +178,7 @@ void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
 }
 
 
-float  IF_kinematics_RPM( float   linear_Vx, float linear_Vy , float angular_Vz)
+rpm  IF_kinematics_RPM( float   linear_Vx, float linear_Vy , float angular_Vz)
 {
   int rpm_req1;
   int rpm_req2;
@@ -200,7 +204,7 @@ if (angular_Vz == 0) {     // go straight
   // return  rpm ;
 }
 
-void  cmd_to_twist_VEL( int rpm1,  int rpm2)
+velocities cmd_to_twist_VEL( int rpm1,  int rpm2)
  {
    struct velocities vel;
    //struct vel;
@@ -209,7 +213,7 @@ void  cmd_to_twist_VEL( int rpm1,  int rpm2)
     float average_rps_a;
 
     average_rps_x = ((float)(rpm1 + rpm2 ) / 2) / 60; // RPM
-    vel.linear_x = average_rps_x * wheel_circumference_; // m/s
+    vel.linear_x = average_rps_x * wheel_circumference_ ; // m/s
     
     average_rps_y = ((float)(-rpm1 + rpm2 ) / 2) / 60; // RPM
     vel.linear_y = 0;
@@ -245,9 +249,7 @@ int computePid( double targetValue, double currentValue)
 
 int get_current_RPM(   long encoder_ticks )
 {
-   int counts_per_rev_;
-    unsigned long prev_update_time_;
-    long prev_encoder_ticks_;
+
     //this function calculates the motor's RPM based on encoder ticks and delta time
     unsigned long current_time = millis();
     unsigned long dt = current_time - prev_update_time_;
@@ -284,13 +286,13 @@ void moveBase()
  //   motor2_controller.spin(pwm.motor2);
    
 
-   struct velocities current_vel;
-//    current_vel = cmd_to_twist_VEL(current_rpm1, current_rpm2);
+     velocities current_vel;
+    current_vel = cmd_to_twist_VEL(current_rpm1, current_rpm2);
     
     //pass velocities to publisher object
-    real_vel_msg.x = current_vel.linear_x;
-    real_vel_msg.y = current_vel.linear_y;
-    real_vel_msg.z = current_vel.angular_z;
+   // real_vel_msg.x = current_vel.linear_x;
+  //  real_vel_msg.y = current_vel.linear_y;
+   // real_vel_msg.z = current_vel.angular_z;
 
     //publish raw_vel_msg
       rpm_pub.publish(&real_vel_msg);
@@ -310,9 +312,9 @@ void printDebug(boolean DEBUG)
        {
         if ((millis() - prev_debug_time) >= (1000 / DEBUG_RATE))
         {
-                sprintf (buffer, "Encoder FrontLeft  : %ld", motor1_encoder.read());
+              sprintf (buffer, "Encoder FrontLeft  : %ld", encoder1.read());
                nh.loginfo(buffer);
-               sprintf (buffer, "Encoder FrontRight : %ld", motor2_encoder.read());
+               sprintf (buffer, "Encoder FrontRight : %ld", encoder2.read());
                nh.loginfo(buffer);
                
             prev_debug_time = millis();
@@ -321,7 +323,23 @@ void printDebug(boolean DEBUG)
    
 }
 
-void Controller::spin(int pwm)
+void InitMotor ()
+{
+  
+}
+
+port  controllerPort ( int pwm_pin_, int motor_pinA_, int motor_pinB_ )
+{
+            pinMode(pwm_pin_, OUTPUT);
+            pinMode(motor_pinA_, OUTPUT);
+            pinMode(motor_pinB_, OUTPUT);
+
+            //ensure that the motor is in neutral state during bootup
+            analogWrite(pwm_pin_, abs(0));
+}
+
+/*
+void Motor (int pwm)
 {
     
             if(pwm > 0)
