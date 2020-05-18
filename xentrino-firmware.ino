@@ -42,7 +42,7 @@ struct robotFrame
  int max_rpm;
  float wheels_x_distance;
  float wheels_y_distance;
- float pwm_res_;
+ float pwm_res;
  float wheel_circumference;
  int total_wheels;
 };
@@ -83,6 +83,15 @@ float Ki =   0;
 
 #define COMMAND_RATE 20 //hz
 #define DEBUG_RATE 5
+
+//MOTOR 1
+#define MOTOR_A1_PIN 2
+#define MOTOR_B1_PIN 1 
+#define PWM_MOTOR_1 4 
+//MOTOR 2
+#define MOTOR_A2_PIN  5
+#define MOTOR_B2_PIN  0
+#define PWM_MOTOR_2 3 
 
 float g_req_linear_vel_x = 0;
 float g_req_linear_vel_y = 0;
@@ -282,16 +291,15 @@ void  int_Motor ( int int_motor )
     switch (int_motor)
     {
       case 1:
-       motor_pinA = 1 ;
-       motor_pinB  = 2 ;
-       pwm_pin = 0;
+       motor_pinA = MOTOR_A1_PIN ;
+       motor_pinB  = MOTOR_B1_PIN ;
+       pwm_pin = PWM_MOTOR_1;
       break;
 
       case 2: 
-       motor_pinA = 3 ;
-       motor_pinB = 4 ;
-       pwm_pin = 5 ;
-       
+       motor_pinA = MOTOR_A1_PIN ;
+       motor_pinB  = MOTOR_B1_PIN ;
+       pwm_pin = PWM_MOTOR_1;
       break;
     }
     
@@ -316,16 +324,15 @@ void motorSpin ( int int_motor,int pwm)
     switch (int_motor)
     {
       case 1:
-       motor_pinA = 1 ;
-       motor_pinB  = 2 ;
-       pwm_pin = 0;
+       motor_pinA = MOTOR_A1_PIN ;
+       motor_pinB  = MOTOR_B1_PIN ;
+       pwm_pin = PWM_MOTOR_1;
       break;
 
       case 2: 
-       motor_pinA = 3 ;
-       motor_pinB = 4 ;
-       pwm_pin = 5 ;
-       
+       motor_pinA = MOTOR_A1_PIN ;
+       motor_pinB  = MOTOR_B1_PIN ;
+       pwm_pin = PWM_MOTOR_1;
       break;
     }
             if(pwm > 0)
