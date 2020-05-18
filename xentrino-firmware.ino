@@ -47,12 +47,7 @@ struct robotFrame
  int total_wheels;
 };
 
-struct port
-{
- int pwm_pin;
- int motor_pinA;
- int motor_pinB;
- };
+
  
 struct rpm
   {
@@ -119,6 +114,8 @@ ros::Time last_time;
 
 void setup() {
 
+ int_Motor(1);
+ int_Motor(2);
  nh.initNode();
  nh.getHardware()->setBaud(57600);
  nh.subscribe(sub);
@@ -276,25 +273,28 @@ int get_current_RPM(   long  current_encoder_ticks, int counts_per_rev )
  * 
  * 
  -------------------------------------------------------------------------*/  
-void  controllerPort ( int int_motor )
+void  int_Motor ( int int_motor )
 {
-    int   motor_pinA;
-    int   motor_pinB;
-    int   pwm_pin;
-  switch (int_motor)
+    int   motor_pinA  ;
+    int   motor_pinB ;
+    int   pwm_pin ;
+      
+    switch (int_motor)
     {
       case 1:
-      motor_pinA ;
-      motor_pinB ;
-      pwm_pin =0 ;      
+       motor_pinA = 1 ;
+       motor_pinB  = 2 ;
+       pwm_pin = 0;
       break;
 
       case 2: 
-      motor_pinA ;
-      motor_pinB ;
-      pwm_pin ;
+       motor_pinA = 3 ;
+       motor_pinB = 4 ;
+       pwm_pin = 5 ;
+       
       break;
     }
+    
     pinMode(pwm_pin, OUTPUT);
     pinMode(motor_pinA, OUTPUT);
     pinMode(motor_pinB, OUTPUT);
