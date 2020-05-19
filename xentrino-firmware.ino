@@ -33,9 +33,35 @@ PSCoE-Computer Engineering Society.
 //Motor Shield headers
 #include <Wire.h>
 #define sign(x) (x > 0) - (x < 0)
+#define K_P 0.6 // P constant
+#define K_I 0.3 // I constant
+#define K_D 0.5 // D constant
+
+//define your robot' specs here
+#define MAX_RPM 330               // motor's maximum RPM
+#define COUNTS_PER_REV 1550       // wheel encoder's no of ticks per rev
+#define WHEEL_DIAMETER 0.10       // wheel's diameter in meters
+#define PWM_BITS 8                // PWM Resolution of the microcontroller
+#define LR_WHEELS_DISTANCE 0.235  // distance between left and right wheels
+#define FR_WHEELS_DISTANCE 0.30   // distance between front and rear wheels. Ignore this if you're on 2WD/ACKERMANN
+#define MAX_STEERING_ANGLE 0.415  // max steering angle. This only applies to Ackermann steering
+#define PWM_MAX pow(2, PWM_BITS) - 1
+#define PWM_MIN -PWM_MAX
+  
+#define COMMAND_RATE 20 //hz
+#define DEBUG_RATE 5
+
+//MOTOR 1
+#define MOTOR_A1_PIN 2
+#define MOTOR_B1_PIN 1 
+#define PWM_MOTOR_1 4 
+//MOTOR 2
+#define MOTOR_A2_PIN  5
+#define MOTOR_B2_PIN  0
+#define PWM_MOTOR_2 3 
+
 
 // #define ENCODER_OPTIMIZE_INTERRUPTS // comment this out on Non-Teensy boards
-
 struct robotFrame
 {
 
@@ -81,29 +107,10 @@ float Ki =   0;
 };
 
 
-#define COMMAND_RATE 20 //hz
-#define DEBUG_RATE 5
-
-//MOTOR 1
-#define MOTOR_A1_PIN 2
-#define MOTOR_B1_PIN 1 
-#define PWM_MOTOR_1 4 
-//MOTOR 2
-#define MOTOR_A2_PIN  5
-#define MOTOR_B2_PIN  0
-#define PWM_MOTOR_2 3 
-
 float g_req_linear_vel_x = 0;
 float g_req_linear_vel_y = 0;
 float g_req_angular_vel_z = 0;
-
 unsigned long g_prev_command_time = 0;
-static unsigned long prev_control_time = 0;
-
-static unsigned long prev_debug_time = 0;
-unsigned long  prev_encoder_time;
-double  prev_encoder_ticks;
-
 
 Encoder encoder1(2, 17);
 Encoder encoder2(3, 15);
@@ -134,14 +141,16 @@ void setup() {
 
 void loop() {
 
-static unsigned long prev_debug_time = 0;
-
 runROS();
 printDebug( 1 );
   
 } // loop
 
 
+/*------------------------------------------------------------------------
+ * 
+ * 
+ -------------------------------------------------------------------------*/
 void runROS()
 {
 static unsigned long prev_control_time = 0;
@@ -156,6 +165,7 @@ static unsigned long prev_control_time = 0;
     if ((millis() - g_prev_command_time) >= 400)
     {
         stopBase();
+         prev_control_time = millis();
     }  
 }
 
@@ -181,7 +191,7 @@ rpm  IF_kinematics_RPM( float   linear_Vx, float linear_Vy , float angular_Vz)
   int rpm_req1;
   int rpm_req2;
   struct rpm rpm;
-  int  max_rpm_ ;
+ // int  max_rpm_ ;
  
 if (angular_Vz == 0) {     // go straight
     // convert m/s to rpm
@@ -197,11 +207,15 @@ if (angular_Vz == 0) {     // go straight
     rpm_req1 = linear_Vx*60/(pi*wheel_diameter) - angular_Vz*track_width*60/(wheel_diameter*pi*2);
     rpm_req2 = linear_Vx*60/(pi*wheel_diameter) + angular_Vz*track_width*60/(wheel_diameter*pi*2);
   }
-   rpm.motor1 = constrain(rpm_req1, -max_rpm_, max_rpm_);
-   rpm.motor2 = constrain(rpm_req2, -max_rpm_, max_rpm_);
+   rpm.motor1 = constrain(rpm_req1, -MAX_RPM, MAX_RPM);
+   rpm.motor2 = constrain(rpm_req2, -MAX_RPM, MAX_RPM);
   // return  rpm ;
 }
 
+/*------------------------------------------------------------------------
+ * 
+ * 
+ -------------------------------------------------------------------------*/
 void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
   double g_req_linear_vel_x  = cmd_msg.linear.x;
   double g_req_linear_vel_y = cmd_msg.angular.z;
@@ -209,6 +223,10 @@ void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg) {
  g_prev_command_time = millis();
 }
 
+/*------------------------------------------------------------------------
+ * 
+ * 
+ -------------------------------------------------------------------------*/
 velocities cmd_to_twist_VEL( int rpm1,  int rpm2)
  {
    struct robotFrame frame;
@@ -251,7 +269,7 @@ int computePid( double targetValue, double currentValue)
   pidTerm = pid.Kp*error + pid.Ki*int_Error + pid.Kd*(error-last_Error) ;
   last_Error = error;
   
-  new_PWM = constrain( pidTerm, -MAX_RPM, MAX_RPM);
+  new_PWM = constrain( pidTerm, -PWM_MAX, PWM_MAX);
   
   return new_PWM;
 }
@@ -262,7 +280,8 @@ int computePid( double targetValue, double currentValue)
  -------------------------------------------------------------------------*/
 int get_current_RPM(   long  current_encoder_ticks, int counts_per_rev )
 {
-
+    static  unsigned long prev_encoder_time = 0;
+    static double prev_encoder_ticks = 0 ;
     //this function calculates the motor's RPM based on encoder ticks and delta time
     unsigned long current_encoder_time = millis();
     unsigned long dt = current_encoder_time - prev_encoder_time;
@@ -398,6 +417,7 @@ void stopBase()
  -------------------------------------------------------------------------*/
 void printDebug(boolean DEBUG)
 {
+  static unsigned long prev_debug_time = 0; 
     char buffer[50];
     if(DEBUG)
        {
