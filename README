@@ -7,3 +7,7 @@ References:
 
 linorobot
 ROS wiki
+
+Instructions:
+sudo apt-get install ros-$ROS_DISTRO-openni-camera ros-$ROS_DISTRO-openni-launch
+roslaunch pkg-name display.launch model:='$(find pkg-name)/xentrino.urdf'
