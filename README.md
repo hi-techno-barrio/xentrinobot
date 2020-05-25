@@ -3,7 +3,7 @@
 
 xentrinobot-ros 
 is a modified version of linorobot firmware and refined base controller for ROS1 and ROS2 
-the purpose is to give simple coding easy to follow by the learner and teachers.
+the purpose is to give simple robotics platform for coding,debugging,porting using  ROS1 & ROS2  .
 
 ![Xentrinobots ](https://raw.githubusercontent.com/hi-techno-barrio/XENTRINOBot-ROS/master/images/Xentrino-Set-Robots.png)
 
