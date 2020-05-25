@@ -70,6 +70,12 @@ void setup() {
  nh.getHardware()->setBaud(57600);
 // nh.subscribe(sub);
  nh.advertise(rpm_pub);
+  while (!nh.connected())
+    {
+        nh.spinOnce();
+    }
+    nh.loginfo("XENTRINOBOT CONNECTED! ");
+    delay(1);
 
 }
 
