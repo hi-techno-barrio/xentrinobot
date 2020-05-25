@@ -8,8 +8,11 @@ the purpose is to give simple coding easy to follow by the learner and teachers.
 ![Xentrinobots ](https://raw.githubusercontent.com/hi-techno-barrio/XENTRINOBot-ROS/master/images/Xentrino-Set-Robots.png)
 
 Thanks to:
+
 ROS Community
+
 ROS Philippines
+
 Linorobot
 
 References:
