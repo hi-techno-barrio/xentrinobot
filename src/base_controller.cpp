@@ -9,7 +9,7 @@
 double  linear_velocity_x =  0 ;
 double  linear_velocity_y =  0 ;
 double  angular_velocity_z = 0 ;
-
+double rate = 10.0;
 double  last_vel_time = 0;
 double  vel_dt        = 0;
 double  x_pos         = 0;
@@ -26,19 +26,21 @@ void commandCallback(const geometry_msgs::Twist&  vel)
 }
 
 int main(int argc, char** argv){
-    ros::init(argc, argv, " "xentrino_base_node"");
+  ros::init(argc, argv, " "xentrino_base_node"");
 
-    ros::NodeHandle n; 
+  ros::NodeHandle n; 
    // ros::Subscriber<geometry_msgs::Twist> cmd_sub("cmd_vel", commandCallback);
-    ros::Subscriber sub = n.subscribe("raw_vel", commandCallback);
-    ros::Publisher odom_publisher_;
+  ros::Subscriber sub = n.subscribe("raw_vel", commandCallback);
+  ros::Publisher odom_publisher_;
   // ros::Subscriber velocity_subscriber_;
   // tf2_ros::TransformBroadcaster odom_broadcaster_;
-    tf2::Quaternion odom_quat;
-    geometry_msgs::TransformStamped odom_trans;
-    nav_msgs::Odometry odom;
-
-    while(n.ok())
+  tf2::Quaternion odom_quat;
+  geometry_msgs::TransformStamped odom_trans;
+  nav_msgs::Odometry odom;
+    
+  ros::Rate r(rate);
+    
+ while(n.ok())
     {
     ros::Time current_time = ros::Time::now();
     vel_dt_ = (current_time - last_vel_time).toSec();
