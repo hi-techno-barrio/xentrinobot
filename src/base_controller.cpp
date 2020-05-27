@@ -4,6 +4,13 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <geometry_msgs/TransformStamped.h>
 
+void handle_rpm( const geometry_msgs::Vector3Stamped& rpm) {
+  rpm_act1 = rpm.vector.x;
+  rpm_act2 = rpm.vector.y;
+  rpm_dt = rpm.vector.z;
+  rpm_time = rpm.header.stamp;
+}
+
 int main(int argc, char** argv){
     ros::init(argc, argv, "odometry_publisher");
 
