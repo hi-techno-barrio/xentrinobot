@@ -11,6 +11,10 @@ PSCoE-Computer Engineering Society.
 */
 
 
+//  Christopher Coballes
+// Hi-Techno Barrio
+//
+
 #if (ARDUINO >= 100)
  #include <Arduino.h>
 #else
@@ -49,34 +53,32 @@ float g_req_angular_vel_z = 0;
 unsigned long g_prev_command_time = 0;
 
 
-//void twist_to_cmd_RPM( const geometry_msgs::Twist& cmd_msg);
+void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg);
 
 ros::NodeHandle nh;
-//ros::Subscriber<geometry_msgs::Twist> cmd_sub("cmd_vel", commandCallback);
-//ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
-
-geometry_msgs::Vector3Stamped real_vel_msg;
-//ros::Publisher raw_vel_pub("raw_vel", &raw_vel_msg);
-ros::Publisher rpm_pub("rpm", &real_vel_msg);
+ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
+geometry_msgs::Twist raw_vel_msg;
+ros::Publisher raw_vel_pub("raw_vel", &raw_vel_msg);
 
 ros::Time current_time;
 ros::Time last_time;
 
 void setup() {
 
- //int_Motor(1);
-// int_Motor(2);
- nh.initNode();
- nh.getHardware()->setBaud(57600);
-// nh.subscribe(sub);
- nh.advertise(rpm_pub);
-  while (!nh.connected())
+
+    nh.initNode();
+    nh.getHardware()->setBaud(57600);
+   // nh.subscribe(pid_sub);
+  //  nh.subscribe(cmd_sub);
+    nh.advertise(raw_vel_pub);
+   // nh.advertise(raw_imu_pub);
+
+   while (!nh.connected())
     {
         nh.spinOnce();
     }
     nh.loginfo("XENTRINOBOT CONNECTED! ");
     delay(1);
-
 }
 
 void loop() {
@@ -86,7 +88,20 @@ printDebug( 1 );
   
 } // loop
 
+/*------------------------------------------------------------------------
+ * 
+ * 
+ -------------------------------------------------------------------------*/
+void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg)
+{
+    //callback function every time linear and angular speed is received from 'cmd_vel' topic
+    //this callback function receives cmd_msg object where linear and angular speed are stored
+    g_req_linear_vel_x = cmd_msg.linear.x;
+    g_req_linear_vel_y = cmd_msg.linear.y;
+    g_req_angular_vel_z = cmd_msg.angular.z;
 
+    g_prev_command_time = millis();
+}
 
 /*------------------------------------------------------------------------
  * 
@@ -147,18 +162,19 @@ void moveBase()
     MOTO1_controller.spin(motor1_pid.compute(req_rpm.motor1, current_rpm1));
     MOTO2_controller.spin(motor2_pid.compute(req_rpm.motor2, current_rpm2));
       
-
     Kinematics::velocities current_vel;
 
     current_vel = kinematics.getVelocities(current_rpm1, current_rpm2);
         
     //pass velocities to publisher object
-   /* raw_vel_msg.linear_x = current_vel.linear_x;
-    raw_vel_msg.linear_y = current_vel.linear_y;
-    raw_vel_msg.angular_z = current_vel.angular_z;
+    raw_vel_msg.linear.x = current_vel.linear_x;
+    raw_vel_msg.linear.y = current_vel.linear_y;
+    raw_vel_msg.angular.z = current_vel.angular_z;
 
     //publish raw_vel_msg
-    raw_vel_pub.publish(&raw_vel_msg);  */
+    raw_vel_pub.publish(&raw_vel_msg); 
+   //  pub.publish(raw_vel_msg);
+    
 }
 /*------------------------------------------------------------------------
  * 
@@ -170,6 +186,8 @@ void stopBase()
     g_req_linear_vel_y = 0;
     g_req_angular_vel_z = 0;
 }
+
+
 /*------------------------------------------------------------------------
  * 
  * 
