@@ -1,8 +1,9 @@
+
 #include <ros/ros.h>
-#include <nav_msgs/Odometry.h>
-#include <tf2_ros/transform_broadcaster.h>
-#include <tf2/LinearMath/Quaternion.h>
 #include <geometry_msgs/Twist.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <nav_msgs/Odometry.h>
+#include <tf2/LinearMath/Quaternion.h>
 #include <geometry_msgs/TransformStamped.h>
 
 double  linear_velocity_x =  0 ;
@@ -27,43 +28,25 @@ void commandCallback(const geometry_msgs::Twist&  vel)
 int main(int argc, char** argv){
     ros::init(argc, argv, " "xentrino_base_node"");
 
-    ros::NodeHandle n;
-    ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 10);
-    //ros::Subscriber<geometry_msgs::Twist> cmd_sub("cmd_vel", commandCallback);
-    ros::Subscriber sub = n.subscribe(""raw_vel"", 10, handle_rpm);
-  
-    tf2_ros::TransformBroadcaster odom_broadcaster;
-
-    double x = 0.0;
-    double y = 0.0;
-    double th = 0.0;
-
-    double vx = 0.0;
-    double vy = 0.0;
-    double vth = 0.0;
-
-    ros::Time current_time, last_time;
-    current_time = ros::Time::now();
-    last_time = ros::Time::now();
-
-    ros::Rate r(50.0);
+    ros::NodeHandle n; 
+   // ros::Subscriber<geometry_msgs::Twist> cmd_sub("cmd_vel", commandCallback);
+    ros::Subscriber sub = n.subscribe("raw_vel", commandCallback);
+    ros::Publisher odom_publisher_;
+  // ros::Subscriber velocity_subscriber_;
+  // tf2_ros::TransformBroadcaster odom_broadcaster_;
+    tf2::Quaternion odom_quat;
+    geometry_msgs::TransformStamped odom_trans;
+    nav_msgs::Odometry odom;
 
     while(n.ok())
     {
-
-    ros::spinOnce();
     ros::Time current_time = ros::Time::now();
-
-    linear_velocity_x_ = vel.linear_x;
-    linear_velocity_y_ = vel.linear_y;
-    angular_velocity_z_ = vel.angular_z;
-
-    vel_dt_ = (current_time - last_vel_time_).toSec();
+    vel_dt_ = (current_time - last_vel_time).toSec();
     last_vel_time_ = current_time;
 
-    double delta_heading = angular_velocity_z_ * vel_dt_; //radians
-    double delta_x = (linear_velocity_x_ * cos(heading_) - linear_velocity_y_ * sin(heading_)) * vel_dt_; //m
-    double delta_y = (linear_velocity_x_ * sin(heading_) + linear_velocity_y_ * cos(heading_)) * vel_dt_; //m
+    double delta_heading = angular_velocity__ * vel_dt; //radians
+    double delta_x = (linear_velocity_x * cos(heading) - linear_velocity_y * sin(heading)) * vel_dt; //m
+    double delta_y = (linear_velocity_x * sin(heading) + linear_velocity_y * cos(heading)) * vel_dt; //m
 
     //calculate current position of the robot
     x_pos_ += delta_x;
@@ -121,5 +104,6 @@ int main(int argc, char** argv){
 
     odom_publisher_.publish(odom);
     }
-
+ ros::spin();   
+return 0;
 }
