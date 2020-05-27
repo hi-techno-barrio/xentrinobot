@@ -8,6 +8,9 @@ the purpose is to give simple robotics platform for coding,debugging,porting usi
 XetrinoBot Mecanum Version
 ![Xentrinobots ](https://github.com/hi-techno-barrio/XENTRINOBot-ROS/blob/master/images/Xentrino-4WD-Mechanum.png)
 
+XentrinoBot Skid Version
+![Xentrinobots ](https://github.com/hi-techno-barrio/XENTRINOBot-ROS/blob/master/images/Xentrino-4WD.png)
+
 XentrinoBot Set
 ![Xentrinobots ](https://raw.githubusercontent.com/hi-techno-barrio/XENTRINOBot-ROS/master/images/Xentrino-Set-Robots.png)
 
