@@ -10,11 +10,6 @@ ROS OpenSource Robotics
 PSCoE-Computer Engineering Society.
 */
 
-
-//  Christopher Coballes
-// Hi-Techno Barrio
-//
-
 #if (ARDUINO >= 100)
  #include <Arduino.h>
 #else
