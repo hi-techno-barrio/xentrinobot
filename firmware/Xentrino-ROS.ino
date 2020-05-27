@@ -4,10 +4,6 @@ ROS-Philippines
 Hi-Techno Barrio
 Project: XentrinoBot
 Funded by: TAPI-DOST
-Special Thanks:
-Juan Jimeno Linorobot Developer
-ROS OpenSource Robotics
-PSCoE-Computer Engineering Society.
 */
 
 #if (ARDUINO >= 100)
