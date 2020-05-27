@@ -44,7 +44,7 @@ int main(int argc, char** argv){
     vel_dt_ = (current_time - last_vel_time).toSec();
     last_vel_time_ = current_time;
 
-    double delta_heading = angular_velocity__ * vel_dt; //radians
+    double delta_heading = angular_velocity_z * vel_dt; //radians
     double delta_x = (linear_velocity_x * cos(heading) - linear_velocity_y * sin(heading)) * vel_dt; //m
     double delta_y = (linear_velocity_x * sin(heading) + linear_velocity_y * cos(heading)) * vel_dt; //m
 
@@ -59,11 +59,14 @@ int main(int argc, char** argv){
 
     odom_trans.header.frame_id = "odom";
     odom_trans.child_frame_id = "base_footprint";
-    //robot's position in x,y, and z
+        
+    // geometry_msgs::TransformStamped odom_trans <--  robot's position in x,y, and z
     odom_trans.transform.translation.x = x_pos_;
     odom_trans.transform.translation.y = y_pos_;
     odom_trans.transform.translation.z = 0.0;
+        
     //robot's heading in quaternion
+    // geometry_msgs::TransformStamped odom_trans <-- tf2::Quaternion odom_quat;
     odom_trans.transform.rotation.x = odom_quat.x();
     odom_trans.transform.rotation.y = odom_quat.y();
     odom_trans.transform.rotation.z = odom_quat.z();
@@ -76,11 +79,12 @@ int main(int argc, char** argv){
     odom.header.frame_id = "odom";
     odom.child_frame_id = "base_footprint";
 
-    //robot's position in x,y, and z
+    // nav_msgs::Odometry odom <-- robot's position in x,y, and z
     odom.pose.pose.position.x = x_pos_;
     odom.pose.pose.position.y = y_pos_;
     odom.pose.pose.position.z = 0.0;
-    //robot's heading in quaternion
+        
+    // nav_msgs::Odometry odom <--robot's heading in quaternion
     odom.pose.pose.orientation.x = odom_quat.x();
     odom.pose.pose.orientation.y = odom_quat.y();
     odom.pose.pose.orientation.z = odom_quat.z();
@@ -89,19 +93,19 @@ int main(int argc, char** argv){
     odom.pose.covariance[7] = 0.001;
     odom.pose.covariance[35] = 0.001;
 
-    //linear speed from encoders
+    // nav_msgs::Odometry odom <--linear speed from encoders
     odom.twist.twist.linear.x = linear_velocity_x_;
     odom.twist.twist.linear.y = linear_velocity_y_;
     odom.twist.twist.linear.z = 0.0;
-
     odom.twist.twist.angular.x = 0.0;
     odom.twist.twist.angular.y = 0.0;
-    //angular speed from encoders
+        
+    // nav_msgs::Odometry odom <--angular speed from encoders
     odom.twist.twist.angular.z = angular_velocity_z_;
     odom.twist.covariance[0] = 0.0001;
     odom.twist.covariance[7] = 0.0001;
     odom.twist.covariance[35] = 0.0001;
-
+   // ros::Publisher odom_publisher_;
     odom_publisher_.publish(odom);
     }
  ros::spin();   
