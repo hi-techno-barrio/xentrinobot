@@ -4,27 +4,21 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <geometry_msgs/TransformStamped.h>
 
-void commandCallback(const geometry_msgs::Twist& cmd_msg);
+double  linear_velocity_x ;
+double  linear_velocity_y ;
+double  angular_velocity_z;
 
-/* void handle_rpm( const geometry_msgs::Vector3Stamped& rpm) {
-  rpm_act1 = rpm.vector.x;
-  rpm_act2 = rpm.vector.y;
-  rpm_dt = rpm.vector.z;
-  rpm_time = rpm.header.stamp;
-}  */
-
-void commandCallback(const geometry_msgs::Twist& cmd_msg)
+void commandCallback(const geometry_msgs::Twist&  vel)
 {
     //callback function every time linear and angular speed is received from 'cmd_vel' topic
     //this callback function receives cmd_msg object where linear and angular speed are stored
-    g_req_linear_vel_x = cmd_msg.linear.x;
-    g_req_linear_vel_y = cmd_msg.linear.y;
-    g_req_angular_vel_z = cmd_msg.angular.z;
-  //  g_prev_command_time = millis();
+   linear_velocity_x = vel.linear.x;
+   linear_velocity_y = vel.linear.y;
+   angular_velocity_z= vel.angular.z;
 }
 
 int main(int argc, char** argv){
-    ros::init(argc, argv, "odometry_publisher");
+    ros::init(argc, argv, " "xentrino_base_node"");
 
     ros::NodeHandle n;
     ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 10);
