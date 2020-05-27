@@ -5,7 +5,6 @@ Hi-Techno Barrio
 Project: XentrinoBot
 Funded by: TAPI-DOST
 */
-
 #if (ARDUINO >= 100)
  #include <Arduino.h>
 #else
@@ -14,7 +13,6 @@ Funded by: TAPI-DOST
 #include <stdio.h>
 #include <ros.h>
 #include <ros/time.h>
-#include <geometry_msgs/Vector3Stamped.h>
 #include <geometry_msgs/Twist.h>
 
 #include "Encoder.h"
@@ -26,8 +24,8 @@ Funded by: TAPI-DOST
 
 // #define ENCODER_OPTIMIZE_INTERRUPTS // comment this out on Non-Teensy boards
 
-Encoder Encoder1(2, 17);
-Encoder Encoder2(3, 15);
+Encoder Encoder1(MOTOR1_IN_A, MOTOR1_IN_B);
+Encoder Encoder2(MOTOR2_IN_A, MOTOR2_IN_B);
 
 Controller MOTO1_controller(Controller::MOTOR_DRIVER, MOTOR1_PWM, MOTOR1_IN_A, MOTOR1_IN_B);
 Controller MOTO2_controller(Controller::MOTOR_DRIVER, MOTOR2_PWM, MOTOR2_IN_A, MOTOR2_IN_B); 
