@@ -42,6 +42,7 @@ int main(int argc, char** argv){
     
  while(n.ok())
     {
+    ros::spinOnce();
     ros::Time current_time = ros::Time::now();
     vel_dt_ = (current_time - last_vel_time).toSec();
     last_vel_time_ = current_time;
@@ -109,7 +110,7 @@ int main(int argc, char** argv){
     odom.twist.covariance[35] = 0.0001;
    // ros::Publisher odom_publisher_;
     odom_publisher_.publish(odom);
+    r.sleep();
     }
- ros::spin();   
-return 0;
+//return 0;
 }
