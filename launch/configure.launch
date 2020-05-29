@@ -6,9 +6,9 @@
     </node>
 -->
     <!-- Start ROS communication between the robot's computer and Linorobot base -->
-    <include file="$(find linorobot)/launch/include/serialcom/serialcom.launch" />
+    <include file="$(find linorobot)/launch/include/serialcom.launch" />
     <!-- IMU Relay and Filter -->
-    <include file="$(find linorobot)/launch/include/imu/imu.launch" />
+    <include file="$(find linorobot)/launch/include/imu.launch" />
 
     <!-- Publish Linorobot odometry -->
     <node pkg="linorobot" name="lino_base_node" type="lino_base_node"></node>
