@@ -1,10 +1,12 @@
 <launch>
-    <!-- Start ROS communication between the robot's computer and Linorobot base -->
+    <!-- Start ROS communication between the robot's computer and Linorobot base 
     <node pkg="rosserial_python" name="rosserial_lino" type="serial_node.py" output="screen">
         <param name="port" value="/dev/linobase" />
         <param name="baud" value="57600" />
     </node>
-
+-->
+    <!-- Start ROS communication between the robot's computer and Linorobot base -->
+    <include file="$(find linorobot)/launch/include/serialcom/serialcom.launch" />
     <!-- IMU Relay and Filter -->
     <include file="$(find linorobot)/launch/include/imu/imu.launch" />
 
