@@ -58,6 +58,7 @@ int main(int argc, char** argv){
 
     //calculate robot's heading in quaternion angle
     //ROS has a function to calculate yaw in quaternion angle
+    // RPY then convert to quaternion
     odom_quat.setRPY(0,0,heading_);
 
     odom_trans.header.frame_id = "odom";
