@@ -36,10 +36,10 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(xentrino_base src/xentrino_base.cpp)
-add_executable(xentrino_base_node src/xentrino_base_node.cpp)
-target_link_libraries(xentrino_base_node xentrino_base ${catkin_LIBRARIES})
-## add_dependencies(xentrino_base lino_msgs_generate_messages_cpp)
+##add_library(xentrino_base src/xentrino_base.cpp)
+##--add_executable(xentrino_base_node src/xentrino_base_node.cpp)
+##--target_link_libraries(xentrino_base_node xentrino_base ${catkin_LIBRARIES})
+
 
 add_executable(xentrino_base_controller src/base_controller.cpp)
 target_link_libraries(xentrino_base_controller ${catkin_LIBRARIES})
