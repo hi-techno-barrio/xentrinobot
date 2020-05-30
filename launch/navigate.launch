@@ -1,4 +1,12 @@
 <launch>
+  <master auto="start"/>
+
+  <!-- Run xentrino -->
+  <include file="$(find xentrinobot)/launch/include/xentrino_urdf.launch" />
+  <!-- Run the map server -->
+    
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find patrick_the_robot)/maps/map4.pgm 0.05"/>
+
     <!-- Map server -->
     <arg name="map_file" default="$(find xentrinobot)/maps/house.yaml"/>
     <node pkg="map_server" name="map_server"  type="map_server" args="$(arg map_file)" />
