@@ -18,16 +18,11 @@
 <launch>
   <node pkg="tf" type="static_transform_publisher" name="base_to_kinect_broadcaster" args="-0.22 0.04 0.1975 0 0 0 \/base_link \/camera_link 100" />
  
+ <!-- Run Linorobot compatible laser drivers. Takes reference from env var XENTRINOLIDAR. ie. export XENTRINOLIDAR=xv11 -->
+    <include file="$(find xentrinobot)/launch/include/$(env XENTRINOLIDAR).launch" />
   
-  <include file="$(find my_personal_robotic_companion)/launch/kinect_laser.launch" />
-
    <include file="$(find xentrinobot)/launch/include/ros_serial.launch" />
- <!-- 
-  <node name="arduino_serial_node" pkg="rosserial_python" type="serial_node.py" output="screen">
-    <param name="port" value="/dev/ttyACM0" />
-    <param name="baud" value="57600" />
-  </node>
--->
+
 
   <node name="base_controller_node" pkg="my_personal_robotic_companion" type="base_controller">
     <param name="publish_tf" value="true" />
