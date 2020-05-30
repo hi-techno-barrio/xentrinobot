@@ -1,30 +1,6 @@
 <launch>
     
-   <include file="$(find xentrinobot)/launch/include/ros_serial.launch" />
-
- <!-- Run Linorobot compatible laser drivers. Takes reference from env var XENTRINOLIDAR. ie. export XENTRINOLIDAR=xv11 -->
-    <include file="$(find xentrinobot)/launch/include/$(env XENTRINOLIDAR).launch" />
-
-    <!-- Publish static transform of the laser. Define your sensor offset here -->
-    <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_laser" args="0.065 0 0.098 0 0 0  /base_link /laser"/>
-
-
-  <node name="base_controller_node" pkg="my_personal_robotic_companion" type="base_controller">
-    <param name="publish_tf" value="true" />
-    <param name="publish_rate" value="10.0" />
-    <param name="linear_scale_positive" value="0.99" />
-    <param name="linear_scale_negative" value="0.99" />
-    <param name="angular_scale_positive" value="1.0" />
-    <param name="angular_scale_negative" value="1.0" />
-    <param name="angular_scale_accel" value="0.0" />
-    <!--param name="alpha" value="0.5" /-->
-    <param name="alpha" value="0" />
-    <param name="use_imu" value="true" />
-  </node>
-  
-  
-  
-  
+  <include file="$(find xentrinobot)/launch/include/bringup.launch" />
   <arg name="model"/>
   <arg name="gui" default="false"/>
   <param name="robot_description" textfile="$(find xentrinobot)/urdf/xentrinobot.urdf"/> <!-- check this robot descriptions -->
