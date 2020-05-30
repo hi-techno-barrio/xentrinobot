@@ -1,21 +1,6 @@
 <launch>
   <include file="$(find my_personal_robotic_companion)/launch/patrick_config.launch"/>  <!-- looking to this! -->
 
-  <arg name="model"/>
-  <arg name="gui" default="false"/>
-  <param name="robot_description" textfile="$(find xentrinobot)/urdf/xentrinobot.urdf"/> <!-- check this robot descriptions -->
-  <param name="use_gui" value="False"/>
-
-  <!--node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/-->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/> 
-</launch>
-
-
-
-
-
-
-<launch>
   <node pkg="tf" type="static_transform_publisher" name="base_to_kinect_broadcaster" args="-0.22 0.04 0.1975 0 0 0 \/base_link \/camera_link 100" />
  
  <!-- Run Linorobot compatible laser drivers. Takes reference from env var XENTRINOLIDAR. ie. export XENTRINOLIDAR=xv11 -->
@@ -36,6 +21,17 @@
     <param name="alpha" value="0" />
     <param name="use_imu" value="true" />
   </node>
+  
+  
+  
+  
+  <arg name="model"/>
+  <arg name="gui" default="false"/>
+  <param name="robot_description" textfile="$(find xentrinobot)/urdf/xentrinobot.urdf"/> <!-- check this robot descriptions -->
+  <param name="use_gui" value="False"/>
 
-
+  <!--node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/-->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/> 
 </launch>
+
+
