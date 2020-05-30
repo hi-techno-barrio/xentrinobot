@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(linorobot)
+project(xentrinobot)
 
 ##################
 ## Dependencies ##
@@ -13,9 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp 
     rospy 
     tf2
-		tf2_ros
+    tf2_ros
     nav_msgs 
-    lino_msgs 
     geometry_msgs 
     sensor_msgs 
     std_msgs
@@ -37,10 +36,10 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(lino_base src/lino_base.cpp)
-add_executable(lino_base_node src/lino_base_node.cpp)
-target_link_libraries(lino_base_node lino_base ${catkin_LIBRARIES})
-add_dependencies(lino_base lino_msgs_generate_messages_cpp)
+add_library(xentrino_base src/xentrino_base.cpp)
+add_executable(xentrino_base_node src/xentrino_base_node.cpp)
+target_link_libraries(xentrino_base_node xentrino_base ${catkin_LIBRARIES})
+## add_dependencies(xentrino_base lino_msgs_generate_messages_cpp)
 
 
 #############
