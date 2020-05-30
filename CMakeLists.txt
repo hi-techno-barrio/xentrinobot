@@ -22,8 +22,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES linorobot
-  CATKIN_DEPENDS roscpp rospy tf2 tf2_ros nav_msgs lino_msgs geometry_msgs sensor_msgs std_msgs 
+  LIBRARIES xentrinobot
+  CATKIN_DEPENDS roscpp rospy tf2 tf2_ros nav_msgs  geometry_msgs sensor_msgs std_msgs 
   DEPENDS system_lib
 )
 
