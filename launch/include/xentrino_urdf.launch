@@ -2,8 +2,6 @@
     
    <include file="$(find xentrinobot)/launch/include/ros_serial.launch" />
 
- <!-- <node pkg="tf" type="static_transform_publisher" name="base_to_kinect_broadcaster" args="-0.22 0.04 0.1975 0 0 0 \/base_link \/camera_link 100" />
-  <-->
  <!-- Run Linorobot compatible laser drivers. Takes reference from env var XENTRINOLIDAR. ie. export XENTRINOLIDAR=xv11 -->
     <include file="$(find xentrinobot)/launch/include/$(env XENTRINOLIDAR).launch" />
 
