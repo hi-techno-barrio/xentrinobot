@@ -3,7 +3,7 @@
 
   <arg name="model"/>
   <arg name="gui" default="false"/>
-  <param name="robot_description" textfile="$(find xentrinobot)/urdf/xentrino.urdf"/> <!-- check this robot descriptions -->
+  <param name="robot_description" textfile="$(find xentrinobot)/urdf/xentrinobot.urdf"/> <!-- check this robot descriptions -->
   <param name="use_gui" value="False"/>
 
   <!--node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/-->
