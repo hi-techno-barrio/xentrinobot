@@ -8,5 +8,5 @@
     
     <!-- Calls navigation stack packages for compatible Linorobot base -->
     <!-- Takes reference from env variable XENTRINOBASE. ie. export XENTRINOBASE=2wd -->
-    <include file="$(find linorobot)/launch/include/move_base_$(env XENTRINOBASE).launch" />
+    <include file="$(find xentrinobot)/launch/include/move_base_$(env XENTRINOBASE).launch" />
 </launch>
