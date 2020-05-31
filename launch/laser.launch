@@ -1,6 +1,6 @@
 <launch>
-    <include file="$(find linorobot)/launch/include/configure.launch" />
-    <!-- Run Linorobot compatible laser drivers. Takes reference from env var LINOLIDAR. ie. export LINOLIDAR=xv11 -->
+    <include file="$(find xentrinobot)/launch/include/configure.launch" />
+    <!-- Run xentrinobot compatible laser drivers. Takes reference from env var XENTRINOLIDAR. ie. export XENTRINOLIDAR=xv11 -->
     <include file="$(find xentrinobot)/launch/include/lidar/$(env XENTRINOLIDAR).launch" />
 
     <!-- Publish static transform of the laser. Define your sensor offset here -->
