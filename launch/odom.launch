@@ -1,7 +1,0 @@
-  <launch>
-    <!--  minimal launh -->
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find xentrinobot)/rviz/odometry.rviz"/>
-    
-  </launch>
-    
-    
