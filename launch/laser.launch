@@ -1,3 +1,4 @@
 <launch>
  <include file="$(find linorobot)/launch/include/configure.launch" />
+<node pkg="rviz" type="rviz" name="rviz" args="-d $(find xentrinobot)/rviz/laser.rviz"
 </launch>
