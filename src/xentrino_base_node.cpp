@@ -6,15 +6,15 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <geometry_msgs/TransformStamped.h>
 
-double  linear_velocity_x =  0 ;
-double  linear_velocity_y =  0 ;
-double  angular_velocity_z = 0 ;
+float  linear_velocity_x =  0 ;
+float  linear_velocity_y =  0 ;
+float  angular_velocity_z = 0 ;
 double rate = 10.0;
-double  last_vel_time = 0;
-double  vel_dt        = 0;
-double  x_pos         = 0;
-double  y_pos         = 0;
-double  heading       = 0;  // robot directions
+ros::Time last_vel_time;
+float vel_dt = 0;
+float x_pos = 0;
+float y_pos= 0;
+float heading= 0;
 
 void commandCallback(const geometry_msgs::Twist&  vel)
 {
