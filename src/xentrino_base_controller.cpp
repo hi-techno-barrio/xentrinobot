@@ -26,7 +26,7 @@ void commandCallback(const geometry_msgs::Twist&  vel)
 }
 
 int main(int argc, char** argv){
-  ros::init(argc, argv, " "xentrino_base_node"");
+  ros::init(argc, argv, "xentrino_base_node");
 
   ros::NodeHandle n; 
    // ros::Subscriber<geometry_msgs::Twist> cmd_sub("cmd_vel", commandCallback);
