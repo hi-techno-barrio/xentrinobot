@@ -30,7 +30,7 @@ int main(int argc, char** argv){
 
   ros::NodeHandle n; 
    // ros::Subscriber<geometry_msgs::Twist> cmd_sub("cmd_vel", commandCallback);
-  ros::Subscriber sub = n.subscribe("raw_vel", commandCallback);
+  ros::Subscriber sub = n.subscribe("raw_vel",0, commandCallback);
   ros::Publisher odom_publisher_;
   // ros::Subscriber velocity_subscriber_;
   // tf2_ros::TransformBroadcaster odom_broadcaster_;
