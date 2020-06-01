@@ -52,21 +52,21 @@ int main(int argc, char** argv){
     double delta_y = (linear_velocity_x * sin(heading) + linear_velocity_y * cos(heading)) * vel_dt; //m
 
     //calculate current position of the robot
-    x_pos_ += delta_x;
-    y_pos_ += delta_y;
-    heading_ += delta_heading;
+    x_pos += delta_x;
+    y_pos += delta_y;
+    heading+= delta_heading;
 
     //calculate robot's heading in quaternion angle
     //ROS has a function to calculate yaw in quaternion angle
     // RPY then convert to quaternion
-    odom_quat.setRPY(0,0,heading_);
+    odom_quat.setRPY(0,0,heading);
 
     odom_trans.header.frame_id = "odom";
     odom_trans.child_frame_id = "base_footprint";
         
     // geometry_msgs::TransformStamped odom_trans <--  robot's position in x,y, and z
-    odom_trans.transform.translation.x = x_pos_;
-    odom_trans.transform.translation.y = y_pos_;
+    odom_trans.transform.translation.x = x_pos;
+    odom_trans.transform.translation.y = y_pos;
     odom_trans.transform.translation.z = 0.0;
         
     //robot's heading in quaternion
@@ -84,8 +84,8 @@ int main(int argc, char** argv){
     odom.child_frame_id = "base_footprint";
 
     // nav_msgs::Odometry odom <-- robot's position in x,y, and z
-    odom.pose.pose.position.x = x_pos_;
-    odom.pose.pose.position.y = y_pos_;
+    odom.pose.pose.position.x = x_pos;
+    odom.pose.pose.position.y = y_pos;
     odom.pose.pose.position.z = 0.0;
         
     // nav_msgs::Odometry odom <--robot's heading in quaternion
@@ -98,14 +98,14 @@ int main(int argc, char** argv){
     odom.pose.covariance[35] = 0.001;
 
     // nav_msgs::Odometry odom <--linear speed from encoders
-    odom.twist.twist.linear.x = linear_velocity_x_;
-    odom.twist.twist.linear.y = linear_velocity_y_;
+    odom.twist.twist.linear.x = linear_velocity_x;
+    odom.twist.twist.linear.y = linear_velocity_y;
     odom.twist.twist.linear.z = 0.0;
     odom.twist.twist.angular.x = 0.0;
     odom.twist.twist.angular.y = 0.0;
         
     // nav_msgs::Odometry odom <--angular speed from encoders
-    odom.twist.twist.angular.z = angular_velocity_z_;
+    odom.twist.twist.angular.z = angular_velocity_z;
     odom.twist.covariance[0] = 0.0001;
     odom.twist.covariance[7] = 0.0001;
     odom.twist.covariance[35] = 0.0001;
