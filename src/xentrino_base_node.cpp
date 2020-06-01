@@ -44,8 +44,8 @@ int main(int argc, char** argv){
     {
     ros::spinOnce();
     ros::Time current_time = ros::Time::now();
-    vel_dt_ = (current_time - last_vel_time).toSec();
-    last_vel_time_ = current_time;
+    vel_dt = (current_time - last_vel_time).toSec();
+    last_vel_time = current_time;
 
     double delta_heading = angular_velocity_z * vel_dt; //radians
     double delta_x = (linear_velocity_x * cos(heading) - linear_velocity_y * sin(heading)) * vel_dt; //m
