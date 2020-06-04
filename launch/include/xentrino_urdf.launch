@@ -1,6 +1,6 @@
 <launch>
     
-  <include file="$(find xentrinobot)/launch/include/configure.launch" />
+  <!-- <include file="$(find xentrinobot)/launch/include/configure.launch" /> -->
   <arg name="model"/>
   <arg name="gui" default="false"/>
   <param name="robot_description" textfile="$(find xentrinobot)/urdf/xentrinobot.urdf"/> <!-- check this robot descriptions -->
