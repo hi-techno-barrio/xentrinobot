@@ -10,7 +10,7 @@
     <!-- IMU Relay and Filter -->
     <include file="$(find xentrinobot)/launch/include/imu.launch" />
 
-    <!-- Publish xentrinobot odometry -->
+    <!-- Publish xentrinobot First NODE odometry -->
     <node pkg="xentrinorobot" name="xentrino_base_node" type="xentrino_base_node"></node>
 
     <!-- Publish static transform from base_footprint to base_link -->
