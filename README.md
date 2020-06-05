@@ -4,7 +4,7 @@
 xentrinobot-ros 
 is a general purpose multiple platforms mobile robotics  compliant to  ROS1 and ROS2, 
 the purpose is to give lesser parts yet configurable to many setups of mobile robtics
-simple ,robust,rugged affordable robotics platform for coding,debugging,porting using ROS  .
+It feature simple ,robust,rugged affordable robotics platform for coding,debugging,porting using ROS  .
 
 XetrinoBot Mecanum Version
 ![Xentrinobots ](https://github.com/hi-techno-barrio/XENTRINOBot-ROS/blob/master/images/Xentrino-4WD-Mechanum.png)
