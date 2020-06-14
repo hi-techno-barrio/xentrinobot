@@ -34,8 +34,10 @@ Funded by: TAPI-DOST
 #define DEBUG_RATE 5
 
 // Motor Pin 1 & Pin 2
-Encoder Encoder1(2, 17);
-Encoder Encoder2(3, 15);
+//Encoder Encoder1(2, 17);
+//Encoder Encoder2(3, 15);
+Encoder Encoder1(MOTOR1_IN_A,  MOTOR1_IN_B);
+Encoder Encoder2(MOTOR2_IN_A,  MOTOR2_IN_B);
 
 Controller MOTO1_controller(Controller::MOTOR_DRIVER, MOTOR1_PWM, MOTOR1_IN_A, MOTOR1_IN_B);
 Controller MOTO2_controller(Controller::MOTOR_DRIVER, MOTOR2_PWM, MOTOR2_IN_A, MOTOR2_IN_B); 
