@@ -57,7 +57,6 @@ void PIDCallback(const std_msgs::Float32MultiArray& pid_);
 void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg);
 
 ros::NodeHandle nh;
-std_msgs::Float32MultiArray pid;
 
 ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
 ros::Subscriber<std_msgs::Float32MultiArray> pid_sub("pid", &PIDCallback);
