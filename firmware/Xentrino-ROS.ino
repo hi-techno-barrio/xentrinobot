@@ -5,14 +5,21 @@ Hi-Techno Barrio
 Project: XentrinoBot
 Funded by: TAPI-DOST
 */
+//  Christopher Coballes
+//  Hi-Techno Barrio
+//
+
 #if (ARDUINO >= 100)
  #include <Arduino.h>
 #else
  #include <WProgram.h>
 #endif
+
 #include <stdio.h>
 #include <ros.h>
 #include <ros/time.h>
+#include <geometry_msgs/Vector3Stamped.h>
+#include "std_msgs/Float32MultiArray.h"
 #include <geometry_msgs/Twist.h>
 
 #include "Encoder.h"
@@ -20,12 +27,15 @@ Funded by: TAPI-DOST
 
 //Motor Shield headers
 #include <Wire.h>
-#define sign(x) (x > 0) - (x < 0)
 
 // #define ENCODER_OPTIMIZE_INTERRUPTS // comment this out on Non-Teensy boards
+#define IMU_PUBLISH_RATE 20 //hz
+#define COMMAND_RATE 20 //hz
+#define DEBUG_RATE 5
 
-Encoder Encoder1(MOTOR1_IN_A, MOTOR1_IN_B);
-Encoder Encoder2(MOTOR2_IN_A, MOTOR2_IN_B);
+// Motor Pin 1 & Pin 2
+Encoder Encoder1(2, 17);
+Encoder Encoder2(3, 15);
 
 Controller MOTO1_controller(Controller::MOTOR_DRIVER, MOTOR1_PWM, MOTOR1_IN_A, MOTOR1_IN_B);
 Controller MOTO2_controller(Controller::MOTOR_DRIVER, MOTOR2_PWM, MOTOR2_IN_A, MOTOR2_IN_B); 
@@ -38,14 +48,18 @@ Kinematics kinematics( MAX_RPM, WHEEL_DIAMETER, FR_WHEELS_DISTANCE, LR_WHEELS_DI
 float g_req_linear_vel_x = 0;
 float g_req_linear_vel_y = 0;
 float g_req_angular_vel_z = 0;
-
+int Arr[2];
 unsigned long g_prev_command_time = 0;
 
-
+void PIDCallback(const std_msgs::Float32MultiArray& pid_);
 void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg);
 
 ros::NodeHandle nh;
+std_msgs::Float32MultiArray pid;
+
 ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
+ros::Subscriber<std_msgs::Float32MultiArray> pid_sub("pid", &PIDCallback);
+
 geometry_msgs::Twist raw_vel_msg;
 ros::Publisher raw_vel_pub("raw_vel", &raw_vel_msg);
 
@@ -53,15 +67,13 @@ ros::Time current_time;
 ros::Time last_time;
 
 void setup() {
-
-
     nh.initNode();
     nh.getHardware()->setBaud(57600);
-   // nh.subscribe(pid_sub);
-  //  nh.subscribe(cmd_sub);
+    nh.subscribe(pid_sub);
+//  nh.subscribe(cmd_sub);
     nh.advertise(raw_vel_pub);
-   // nh.advertise(raw_imu_pub);
-
+//  nh.advertise(raw_imu_pub);
+   
    while (!nh.connected())
     {
         nh.spinOnce();
@@ -88,10 +100,24 @@ void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg)
     g_req_linear_vel_x = cmd_msg.linear.x;
     g_req_linear_vel_y = cmd_msg.linear.y;
     g_req_angular_vel_z = cmd_msg.angular.z;
-
     g_prev_command_time = millis();
 }
 
+/*------------------------------------------------------------------------
+ * 
+ * 
+ -------------------------------------------------------------------------*/
+ void PIDCallback(const std_msgs::Float32MultiArray& pid_) 
+{
+  float p,i,d;
+    p = pid_.data[0];
+    i = pid_.data[1];
+    d = pid_.data[2];
+    motor1_pid.updateConstants(p, i, d);
+    motor2_pid.updateConstants(p, i, d);
+//    motor3_pid.updateConstants(p, i, d);
+ //   motor4_pid.updateConstants(p, i, d);
+} 
 /*------------------------------------------------------------------------
  * 
  * 
@@ -137,22 +163,25 @@ static unsigned long prev_control_time = 0;
     }  
 }
 
+ /*------------------------------------------------------------------------
+ * 
+ * 
+ -------------------------------------------------------------------------*/
 void moveBase()
 {
  //get the required rpm for each motor based on required velocities, and base used
     Kinematics::rpm req_rpm = kinematics.expectedRPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
 
-    //get the current speed of each motor
+  //get the current speed of each motor
     int current_rpm1 =  get_actual_RPM (Encoder1.read(),MAX_RPM);
     int current_rpm2 =  get_actual_RPM (Encoder2.read(),MAX_RPM);
 
-    //the required rpm is capped at -/+ MAX_RPM to prevent the PID from having too much error
-    //the PWM value sent to the motor driver is the calculated PID based on required RPM vs measured RPM
+  //the required rpm is capped at -/+ MAX_RPM to prevent the PID from having too much error
+  //the PWM value sent to the motor driver is the calculated PID based on required RPM vs measured RPM
     MOTO1_controller.spin(motor1_pid.compute(req_rpm.motor1, current_rpm1));
     MOTO2_controller.spin(motor2_pid.compute(req_rpm.motor2, current_rpm2));
       
     Kinematics::velocities current_vel;
-
     current_vel = kinematics.getVelocities(current_rpm1, current_rpm2);
         
     //pass velocities to publisher object
@@ -162,9 +191,9 @@ void moveBase()
 
     //publish raw_vel_msg
     raw_vel_pub.publish(&raw_vel_msg); 
-   //  pub.publish(raw_vel_msg);
-    
+   //  pub.publish(raw_vel_msg);    
 }
+
 /*------------------------------------------------------------------------
  * 
  * 
@@ -176,7 +205,41 @@ void stopBase()
     g_req_angular_vel_z = 0;
 }
 
-
+/*------------------------------------------------------------------------
+ * 
+ * 
+ -------------------------------------------------------------------------*/
+ void publish_IMU( )
+ {
+  static bool imu_is_initialized;
+  static unsigned long prev_imu_time = 0;
+//this block publishes the IMU data based on defined rate
+   if ((millis() - prev_imu_time) >= (1000 / IMU_PUBLISH_RATE))
+    {     
+        //sanity check if the IMU is connected
+        if (!imu_is_initialized)
+        {
+           // imu_is_initialized = initIMU();
+            if(imu_is_initialized)
+                nh.loginfo("IMU Initialized");
+            else
+                nh.logfatal("IMU failed to initialize. Check your IMU connection.");
+        }
+        else
+        {
+           // publishIMU();
+           //pass accelerometer data to imu object
+//          raw_imu_msg.linear_acceleration = readAccelerometer();      
+          //pass gyroscope data to imu object
+     //     raw_imu_msg.angular_velocity = readGyroscope();
+          //pass accelerometer data to imu object
+    //      raw_imu_msg.magnetic_field = readMagnetometer();      
+          //publish raw_imu_msg
+      //    raw_imu_pub.publish(&raw_imu_msg);
+        }
+        prev_imu_time = millis();
+    }
+ }
 /*------------------------------------------------------------------------
  * 
  * 
@@ -196,6 +259,5 @@ void printDebug(boolean DEBUG)
                
             prev_debug_time = millis();
         }
-     }  
-   
+     }     
 }
