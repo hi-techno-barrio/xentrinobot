@@ -5,7 +5,6 @@ Hi-Techno Barrio
 Project: XentrinoBot
 Funded by: TAPI-DOST
 */
-
 //  Christopher Coballes
 //  Hi-Techno Barrio
 //
@@ -160,8 +159,6 @@ static unsigned long prev_control_time = 0;
     if ((millis() - g_prev_command_time) >= 400)
     {
         stopBase();
-        prev_control_time = millis();
-      //  prev_control_time = millis();
     }  
 }
 
