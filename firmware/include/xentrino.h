@@ -8,7 +8,7 @@ class Kinematics
 {
     public:
 	 enum base {DIFFERENTIAL_DRIVE, SKID_STEER, OMNI, MECANUM};
-        base base_platform;
+        base robot_base;
 		
         struct rpm
         {
