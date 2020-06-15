@@ -5,6 +5,7 @@ Hi-Techno Barrio
 Project: XentrinoBot
 Funded by: TAPI-DOST
 */
+
 //  Christopher Coballes
 //  Hi-Techno Barrio
 //
@@ -18,10 +19,9 @@ Funded by: TAPI-DOST
 #include <stdio.h>
 #include <ros.h>
 #include <ros/time.h>
-#include <geometry_msgs/Vector3Stamped.h>
-#include "std_msgs/Float32MultiArray.h"
+#include <std_msgs/Float32MultiArray.h>
 #include <geometry_msgs/Twist.h>
-
+#include "xentrino_base_config.h"
 #include "Encoder.h"
 #include "xentrino.h"
 
@@ -34,10 +34,8 @@ Funded by: TAPI-DOST
 #define DEBUG_RATE 5
 
 // Motor Pin 1 & Pin 2
-//Encoder Encoder1(2, 17);
-//Encoder Encoder2(3, 15);
-Encoder Encoder1(MOTOR1_IN_A,  MOTOR1_IN_B);
-Encoder Encoder2(MOTOR2_IN_A,  MOTOR2_IN_B);
+Encoder Encoder1(2, 17);
+Encoder Encoder2(3, 15);
 
 Controller MOTO1_controller(Controller::MOTOR_DRIVER, MOTOR1_PWM, MOTOR1_IN_A, MOTOR1_IN_B);
 Controller MOTO2_controller(Controller::MOTOR_DRIVER, MOTOR2_PWM, MOTOR2_IN_A, MOTOR2_IN_B); 
@@ -57,9 +55,10 @@ void PIDCallback(const std_msgs::Float32MultiArray& pid_);
 void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg);
 
 ros::NodeHandle nh;
+std_msgs::Float32MultiArray pid;
 
 ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
-ros::Subscriber<std_msgs::Float32MultiArray> pid_sub("pid", &PIDCallback);
+ros::Subscriber<std_msgs::Float32MultiArray> pid_sub("pid", PIDCallback);
 
 geometry_msgs::Twist raw_vel_msg;
 ros::Publisher raw_vel_pub("raw_vel", &raw_vel_msg);
@@ -116,8 +115,8 @@ void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg)
     d = pid_.data[2];
     motor1_pid.updateConstants(p, i, d);
     motor2_pid.updateConstants(p, i, d);
-//    motor3_pid.updateConstants(p, i, d);
- //   motor4_pid.updateConstants(p, i, d);
+//  motor3_pid.updateConstants(p, i, d);
+//  motor4_pid.updateConstants(p, i, d);
 } 
 /*------------------------------------------------------------------------
  * 
@@ -127,6 +126,7 @@ int get_actual_RPM(   long  current_encoder_ticks, int counts_per_rev )
 {
     static  unsigned long prev_encoder_time = 0;
     static double prev_encoder_ticks = 0 ;
+    
     //this function calculates the motor's RPM based on encoder ticks and delta time
     unsigned long current_encoder_time = millis();
     unsigned long dt = current_encoder_time - prev_encoder_time;
@@ -160,7 +160,8 @@ static unsigned long prev_control_time = 0;
     if ((millis() - g_prev_command_time) >= 400)
     {
         stopBase();
-         prev_control_time = millis();
+        prev_control_time = millis();
+      //  prev_control_time = millis();
     }  
 }
 
@@ -171,7 +172,7 @@ static unsigned long prev_control_time = 0;
 void moveBase()
 {
  //get the required rpm for each motor based on required velocities, and base used
-    Kinematics::rpm req_rpm = kinematics.expectedRPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
+    Kinematics::rpm req_rpm = kinematics.expected_RPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
 
   //get the current speed of each motor
     int current_rpm1 =  get_actual_RPM (Encoder1.read(),MAX_RPM);
@@ -260,5 +261,6 @@ void printDebug(boolean DEBUG)
                
             prev_debug_time = millis();
         }
-     }     
+     }  
+   
 }
