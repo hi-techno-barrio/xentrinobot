@@ -11,7 +11,7 @@
 Kinematics::Kinematics(  int max_rpm, float wheel_diameter, float wheels_x_distance, float wheels_y_distance) 
   {   
       wheel_circumference = PI* wheel_diameter;
-	  base_platform = XENTRINO_BASE;
+	  robot_base = XENTRINO_BASE;
 	 
   }
 
