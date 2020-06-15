@@ -19,7 +19,7 @@ Kinematics::Kinematics( int motor_max_rpm, float wheel_diameter, float wheels_x_
       total_wheels = DIFFERENTIAL_DRIVE;	
   }
 
-		Kinematics::rpm Kinematics::expectedRPM(float linear_x, float linear_y, float angular_z)
+		Kinematics::rpm Kinematics::expected_RPM(float linear_x, float linear_y, float angular_z)
 		{
 			float tangential_vel;
 			float x_rpm;
@@ -233,4 +233,10 @@ int Decoder::getRPM(){
 		
 		return (delta_ticks / counts_per_rev_) / dtm;
 	}
+	
+	Link:
+	http://www.daslhub.org/unlv/wiki/doku.php?id=robotino_vision_pickup
+	https://javatea.adiary.jp/060
+	https://programmersought.com/article/77261184260/;jsessionid=3949FE3596DA4332D91C082FEBB05B05
+	http://alexsleat.co.uk/2011/07/02/ros-publishing-and-subscribing-to-arrays/
 */
