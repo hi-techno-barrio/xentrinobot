@@ -8,45 +8,74 @@
 /*     																											 */
 /*---------------------------------------------------------------------------------------------------------------*/
 
-Kinematics::Kinematics( int motor_max_rpm, float wheel_diameter, float wheels_x_distance, float wheels_y_distance)
-  //  max_rpm(motor_max_rpm), wheel_circumference(PI * wheel_diameter),total_wheels(DIFFERENTIAL_DRIVE) ) 
+Kinematics::Kinematics(  int max_rpm, float wheel_diameter, float wheels_x_distance, float wheels_y_distance) 
   {   
-       max_rpm = motor_max_rpm;
-        //private float wheels_x_distance 
-        //private float wheels_y_distance  ;
-        //float pwm_res_;
       wheel_circumference = PI* wheel_diameter;
-      total_wheels = DIFFERENTIAL_DRIVE;	
+	  base_platform = XENTRINO_BASE;
+	 
   }
 
-		Kinematics::rpm Kinematics::expected_RPM(float linear_x, float linear_y, float angular_z)
-		{
+	Kinematics::rpm Kinematics::expected_RPM(float linear_x, float linear_y, float angular_z)
+		{			
 			float tangential_vel;
 			float x_rpm;
 			float y_rpm;
-			float tan_rpm;
+			float tan_rpm;	
+			
+			   switch(base_platform)
+                {
+                 case DIFFERENTIAL_DRIVE:    
+				      total_wheels = 2;
+					  linear_y=0.0;
+				      break;
+				 case SKID_STEER:           
+				      total_wheels = 4;	
+                      linear_y=0.0;				  
+				     break;				 
+                 case OMNI:  
+				      total_wheels = 4;
+					 // linear_y = 0.0;
+					 // angular_z = 0.0;
+				     break;
+                 case MECANUM:               
+				      total_wheels = 4;
+					  //as is 
+				 break;
+  
+                }
+	
 			Kinematics::rpm rpm;
 			// float linear_y is zero  and convert m/s to m/min
 			
 			tangential_vel = angular_z * 60 * ((wheels_x_distance / 2) + (wheels_y_distance/ 2));
 			
 			x_rpm = linear_x * 60/ wheel_circumference;	
+			y_rpm = linear_y * 60 / wheel_circumference;
 			tan_rpm =  tangential_vel / wheel_circumference;
-
+			
 			//calculate for the target motor RPM and direction-front-left motor
-			//rpm.motor1 = x_rpm - y_rpm - tan_rpm;
-			rpm.motor1 = x_rpm -  tan_rpm;
+
+			//front-left motor
+			rpm.motor1 = x_rpm - y_rpm - tan_rpm;
 			rpm.motor1 = constrain(rpm.motor1, -max_rpm, max_rpm);
 
-			//calculate for the target motor RPM and direction-right motor
-			//rpm.motor2 = x_rpm + y_rpm + tan_rpm;
-			rpm.motor2 = x_rpm + tan_rpm;
+			//front-right motor
+			rpm.motor2 = x_rpm + y_rpm + tan_rpm;
 			rpm.motor2 = constrain(rpm.motor2, -max_rpm, max_rpm);
-			return rpm;
+
+			//rear-left motor
+			rpm.motor3 = x_rpm + y_rpm - tan_rpm;
+			rpm.motor3 = constrain(rpm.motor3, -max_rpm, max_rpm);
+
+			//rear-right motor
+			rpm.motor4 = x_rpm - y_rpm + tan_rpm;
+			rpm.motor4 = constrain(rpm.motor4, -max_rpm, max_rpm);
+
+			return rpm;			
 		}
 
 
-		Kinematics::velocities Kinematics::getVelocities(int rpm1, int rpm2)
+		Kinematics::velocities Kinematics::getVelocities(int rpm1, int rpm2,int rpm3, int rpm4)
 		{
 			Kinematics::velocities vel;
 			float average_rps_x;
@@ -54,18 +83,21 @@ Kinematics::Kinematics( int motor_max_rpm, float wheel_diameter, float wheels_x_
 			float average_rps_a;
 
 			//convert average revolutions per minute to revolutions per second
-			average_rps_x = ((float)(rpm1 + rpm2 ) / total_wheels) / 60; // RPM
+			average_rps_x = ((float)(rpm1 + rpm2 + rpm3 + rpm4) / total_wheels) / 60; // RPM
 			vel.linear_x = average_rps_x * wheel_circumference; // m/s
 
 			//convert average revolutions per minute in y axis to revolutions per second
-			average_rps_y = ((float)(-rpm1 + rpm2 ) / total_wheels) / 60; // RPM
-			vel.linear_y = 0;
+			average_rps_y = ((float)(-rpm1 + rpm2 + rpm3 - rpm4) / total_wheels) / 60; // RPM
+			if(base_platform == MECANUM)
+				vel.linear_y = average_rps_y * wheel_circumference; // m/s
+			else
+				vel.linear_y = 0;
 
 			//convert average revolutions per minute to revolutions per second
-			average_rps_a = ((float)(-rpm1 + rpm2 ) / total_wheels) / 60;
+			average_rps_a = ((float)(-rpm1 + rpm2 - rpm3 + rpm4) / total_wheels) / 60;
 			vel.angular_z =  (average_rps_a * wheel_circumference) / ((wheels_x_distance / 2) + (wheels_y_distance / 2)); //  rad/s
 
-			return vel;
+    return vel;
 		}
 		
 /* ------------------------------------------------------------------------------------------------------------- */
