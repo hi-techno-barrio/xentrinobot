@@ -22,7 +22,7 @@ Kinematics::Kinematics(  int max_rpm, float wheel_diameter, float wheels_x_dista
 			float y_rpm;
 			float tan_rpm;	
 			
-			   switch(base_platform)
+			   switch(robot_base)
                 {
                  case DIFFERENTIAL_DRIVE:    
 				      total_wheels = 2;
