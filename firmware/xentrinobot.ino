@@ -9,6 +9,10 @@ Funded by: TAPI-DOST
 //  Hi-Techno Barrio
 //
 
+//  Christopher Coballes
+//  Hi-Techno Barrio
+//
+
 #if (ARDUINO >= 100)
  #include <Arduino.h>
 #else
@@ -33,14 +37,22 @@ Funded by: TAPI-DOST
 #define DEBUG_RATE 5
 
 // Motor Pin 1 & Pin 2
-Encoder Encoder1(2, 17);
-Encoder Encoder2(3, 15);
+//Encoder Encoder1(2, 17);
+//Encoder Encoder2(3, 15);
+Encoder Encoder1(MOTOR1_ENCODER_A, MOTOR1_ENCODER_B);
+Encoder Encoder2(MOTOR2_ENCODER_A, MOTOR2_ENCODER_B);
+Encoder Encoder3(MOTOR3_ENCODER_A, MOTOR3_ENCODER_B);
+Encoder Encoder4(MOTOR4_ENCODER_A, MOTOR4_ENCODER_B);
 
 Controller MOTO1_controller(Controller::MOTOR_DRIVER, MOTOR1_PWM, MOTOR1_IN_A, MOTOR1_IN_B);
 Controller MOTO2_controller(Controller::MOTOR_DRIVER, MOTOR2_PWM, MOTOR2_IN_A, MOTOR2_IN_B); 
+Controller MOTO3_controller(Controller::MOTOR_DRIVER, MOTOR3_PWM, MOTOR3_IN_A, MOTOR3_IN_B);
+Controller MOTO4_controller(Controller::MOTOR_DRIVER, MOTOR4_PWM, MOTOR4_IN_A, MOTOR4_IN_B); 
 
 PID motor1_pid(PWM_MIN, PWM_MAX, K_P, K_I, K_D);
 PID motor2_pid(PWM_MIN, PWM_MAX, K_P, K_I, K_D);
+PID motor3_pid(PWM_MIN, PWM_MAX, K_P, K_I, K_D);
+PID motor4_pid(PWM_MIN, PWM_MAX, K_P, K_I, K_D);
 
 Kinematics kinematics( MAX_RPM, WHEEL_DIAMETER, FR_WHEELS_DISTANCE, LR_WHEELS_DISTANCE);
 
@@ -84,7 +96,7 @@ void setup() {
 void loop() {
 
 runROS();
-printDebug( 1 );
+printDebug( );
   
 } // loop
 
@@ -154,7 +166,6 @@ static unsigned long prev_control_time = 0;
         moveBase();
         prev_control_time = millis();
     }
-
  //this block stops the motor when no command is received
     if ((millis() - g_prev_command_time) >= 400)
     {
@@ -174,14 +185,16 @@ void moveBase()
   //get the current speed of each motor
     int current_rpm1 =  get_actual_RPM (Encoder1.read(),MAX_RPM);
     int current_rpm2 =  get_actual_RPM (Encoder2.read(),MAX_RPM);
-
+    int current_rpm3 =  get_actual_RPM (Encoder3.read(),MAX_RPM);
+    int current_rpm4 =  get_actual_RPM (Encoder4.read(),MAX_RPM);
+    
   //the required rpm is capped at -/+ MAX_RPM to prevent the PID from having too much error
   //the PWM value sent to the motor driver is the calculated PID based on required RPM vs measured RPM
     MOTO1_controller.spin(motor1_pid.compute(req_rpm.motor1, current_rpm1));
     MOTO2_controller.spin(motor2_pid.compute(req_rpm.motor2, current_rpm2));
       
     Kinematics::velocities current_vel;
-    current_vel = kinematics.getVelocities(current_rpm1, current_rpm2);
+    current_vel = kinematics.getVelocities(current_rpm1, current_rpm2,current_rpm3, current_rpm4);
         
     //pass velocities to publisher object
     raw_vel_msg.linear.x = current_vel.linear_x;
@@ -243,7 +256,7 @@ void stopBase()
  * 
  * 
  -------------------------------------------------------------------------*/
-void printDebug(boolean DEBUG)
+void printDebug()
 {
   static unsigned long prev_debug_time = 0; 
     char buffer[50];
@@ -258,6 +271,5 @@ void printDebug(boolean DEBUG)
                
             prev_debug_time = millis();
         }
-     }  
-   
+     }   
 }
