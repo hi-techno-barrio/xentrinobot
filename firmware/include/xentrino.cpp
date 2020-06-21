@@ -22,26 +22,25 @@ Kinematics::Kinematics(  int max_rpm, float wheel_diameter, float wheels_x_dista
 			float y_rpm;
 			float tan_rpm;	
 			
-			   switch(robot_base)
+	switch(robot_base)
                 {
                  case DIFFERENTIAL_DRIVE:    
-				      total_wheels = 2;
-					  linear_y=0.0;
-				      break;
-				 case SKID_STEER:           
-				      total_wheels = 4;	
-                      linear_y=0.0;				  
-				     break;				 
+			total_wheels = 2;
+			linear_y=0.0;
+			break;
+		 case SKID_STEER:           
+		       total_wheels = 4;	
+                       linear_y=0.0;				  
+		       break;				 
                  case OMNI:  
-				      total_wheels = 4;
-					 // linear_y = 0.0;
-					 // angular_z = 0.0;
+		       total_wheels = 4;
+			// linear_y = 0.0;
+			// angular_z = 0.0;
 				     break;
                  case MECANUM:               
-				      total_wheels = 4;
-					  //as is 
-				 break;
-  
+		       total_wheels = 4;
+			 //as is 
+		        reak; 
                 }
 	
 			Kinematics::rpm rpm;
