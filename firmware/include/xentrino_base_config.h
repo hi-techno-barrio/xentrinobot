@@ -66,11 +66,11 @@ ROBOT ORIENTATION
   #define MOTOR_DRIVER 2WD_TEENSY_MOTO
 
   /// ENCODER PINS
-  #define MOTOR1_ENCODER_A 6
-  #define MOTOR1_ENCODER_B 21 
+  #define MOTOR1_ENCODER_A 21 //  Yellow
+  #define MOTOR1_ENCODER_B 6  // White
 
-  #define MOTOR2_ENCODER_A 22
-  #define MOTOR2_ENCODER_B 23 
+  #define MOTOR2_ENCODER_A 23
+  #define MOTOR2_ENCODER_B 22
 
 /// MOTOR PINS
   #define MOTOR1_PWM  4
