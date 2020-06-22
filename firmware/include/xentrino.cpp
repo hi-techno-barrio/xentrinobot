@@ -22,25 +22,26 @@ Kinematics::Kinematics(  int max_rpm, float wheel_diameter, float wheels_x_dista
 			float y_rpm;
 			float tan_rpm;	
 			
-	switch(robot_base)
+			   switch(robot_base)
                 {
                  case DIFFERENTIAL_DRIVE:    
-			total_wheels = 2;
-			linear_y=0.0;
-			break;
-		 case SKID_STEER:           
-		       total_wheels = 4;	
-                       linear_y=0.0;				  
-		       break;				 
+				      total_wheels = 2;
+					  linear_y=0.0;
+				      break;
+				 case SKID_STEER:           
+				      total_wheels = 4;	
+                      linear_y=0.0;				  
+				     break;				 
                  case OMNI:  
-		       total_wheels = 4;
-			// linear_y = 0.0;
-			// angular_z = 0.0;
+				      total_wheels = 4;
+					 // linear_y = 0.0;
+					 // angular_z = 0.0;
 				     break;
                  case MECANUM:               
-		       total_wheels = 4;
-			 //as is 
-		        reak; 
+				      total_wheels = 4;
+					  //as is 
+				 break;
+  
                 }
 	
 			Kinematics::rpm rpm;
@@ -118,7 +119,7 @@ Controller::Controller(driver motor_driver, int pwm_pin, int motor_pinA, int mot
             pinMode(pwm_pin_, OUTPUT);
             pinMode(motor_pinA_, OUTPUT);
             pinMode(motor_pinB_, OUTPUT);
-
+            enableMOTO( motor_driver_);
             //ensure that the motor is in neutral state during bootup
             analogWrite(pwm_pin_, abs(0));
 
@@ -184,7 +185,17 @@ void Controller::spin(int pwm)
    
     }
 }
-
+void Controller::enableMOTO(driver motor_driver)
+{
+    switch(motor_driver)
+    {
+        case MOTO:    
+		break;
+		
+        case BIG_MOTO:             
+		break;                  
+    }
+}
 /* ------------------------------------------------------------------------------------------------------------- */
 /*     																											 */
 /*     																											 */
