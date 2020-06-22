@@ -8,7 +8,8 @@ class Kinematics
 {
     public:
 	 enum base {DIFFERENTIAL_DRIVE, SKID_STEER, OMNI, MECANUM};
-        base robot_base;
+        base base_platform;
+		base robot_base;
 		
         struct rpm
         {
@@ -54,6 +55,7 @@ class Controller
         enum driver {MOTO, BIG_MOTO};
         Controller(driver motor_driver, int pwm_pin, int motor_pinA, int motor_pinB);
         void spin(int pwm);
+		void enableMOTO(driver motor_driver);
 
    private:
       private:       
@@ -84,5 +86,20 @@ class PID
         double prev_error_;
 };
 
-
+/*
+class Decoder
+{
+public:
+	Decoder(uint8_t pin1, uint8_t pin2, int counts_per_rev);
+	int getRPM();
+	
+	private:
+	int counts_per_rev_;
+	unsigned long prev_update_time_;
+    long prev_encoder_ticks_;
+	int pin1_;
+	int pin2_;
+	//Encoder_internal_state_t encoder;
+};
+*/
 #endif
