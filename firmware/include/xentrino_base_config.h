@@ -16,6 +16,10 @@
 #define LR_WHEELS_DISTANCE 0.235  // distance between left and right wheels
 #define FR_WHEELS_DISTANCE 0.30   // distance between front and rear wheels. Ignore this if you're on 2WD/ACKERMANN
 
+// #define ENCODER_OPTIMIZE_INTERRUPTS // comment this out on Non-Teensy boards
+#define IMU_PUBLISH_RATE 20 //hz
+#define COMMAND_RATE 20 //hz
+#define DEBUG_RATE 5
 
 //uncomment the base you're building
 #define XENTRINO_BASE DIFFERENTIAL_DRIVE            // 2WD and Tracked robot w/ 2 motors
@@ -96,6 +100,9 @@ ROBOT ORIENTATION
   #define MOTOR4_IN_A 30
   #define MOTOR4_IN_B 30
   
+  #define MOTOR1_EN1  7  //activalte motor 
+  #define MOTOR2_EN2  8
+  
   #define PWM_MAX pow(2, PWM_BITS) - 1
   #define PWM_MIN -PWM_MAX
 #endif 
@@ -150,14 +157,20 @@ ROBOT ORIENTATION
   #define MOTOR2_IN_A 32
   #define MOTOR2_IN_B 38
 
-  #define MOTOR3_PWM   6
-  #define MOTOR3_IN_A  7
-  #define MOTOR3_IN_B  9
+  #define MOTOR3_PWM  6
+  #define MOTOR3_IN_A 7
+  #define MOTOR3_IN_B 9
 
-  #define MOTOR4_PWM   5
-  #define MOTOR4_IN_A  8
+  #define MOTOR4_PWM  5
+  #define MOTOR4_IN_A 8
   #define MOTOR4_IN_B 11
-
+  
+  #define MOTOR1_EN1  7  //activalte motor 1 
+  #define MOTOR2_EN2  8  //activalte motor 2 
+  
+  #define MOTOR3_EN3  7  //activalte motor  3
+  #define MOTOR4_EN4  8  //activalte motor  4 
+  
   #define PWM_MAX pow(2, PWM_BITS) - 1
   #define PWM_MIN -PWM_MAX
 #endif 
