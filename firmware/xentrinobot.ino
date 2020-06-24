@@ -183,10 +183,10 @@ void moveBase()
     Kinematics::rpm req_rpm = kinematics.expected_RPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
 
   //get the current speed of each motor
-    int current_rpm1 =  get_actual_RPM (Encoder1.read(),MAX_RPM);
-    int current_rpm2 =  get_actual_RPM (Encoder2.read(),MAX_RPM);
-    int current_rpm3 =  get_actual_RPM (Encoder3.read(),MAX_RPM);
-    int current_rpm4 =  get_actual_RPM (Encoder4.read(),MAX_RPM);
+    int current_rpm1 =  get_actual_RPM (Encoder1.read(),COUNTS_PER_REV);
+    int current_rpm2 =  get_actual_RPM (Encoder2.read(),COUNTS_PER_REV);
+    int current_rpm3 =  get_actual_RPM (Encoder3.read(),COUNTS_PER_REV);
+    int current_rpm4 =  get_actual_RPM (Encoder4.read(),COUNTS_PER_REV);
     
   //the required rpm is capped at -/+ MAX_RPM to prevent the PID from having too much error
   //the PWM value sent to the motor driver is the calculated PID based on required RPM vs measured RPM
