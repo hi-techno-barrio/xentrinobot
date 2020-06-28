@@ -1,6 +1,5 @@
 #ifndef XENTRINO_H
 #define XENTRINO_H
-#include "xentrino_base_config.h"
 #include "Arduino.h"
 
 
@@ -52,10 +51,10 @@ class Kinematics
 class Controller
 {
     public:
-        enum driver {MOTO, BIG_MOTO};
+        enum driver {MOTO,MOTO1,MOTO2, BIG_MOTO};
         Controller(driver motor_driver, int pwm_pin, int motor_pinA, int motor_pinB);
         void spin(int pwm);
-		void enableMOTO(driver motor_driver);
+		void enableMOTOR(driver motor_driver);
 
    private:
       private:       

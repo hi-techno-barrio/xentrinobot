@@ -1,6 +1,6 @@
 #include "Arduino.h"
+#include "xentrino_base_config.h"
 #include "xentrino.h"
-
 
 /* ------------------------------------------------------------------------------------------------------------- */
 /*     																											 */
@@ -11,10 +11,8 @@
 Kinematics::Kinematics(  int max_rpm, float wheel_diameter, float wheels_x_distance, float wheels_y_distance) 
   {   
       wheel_circumference = PI* wheel_diameter;
-	  robot_base = XENTRINO_BASE;
-	 
+	  robot_base = XENTRINO_BASE;	 
   }
-
 	Kinematics::rpm Kinematics::expected_RPM(float linear_x, float linear_y, float angular_z)
 		{			
 			float tangential_vel;
@@ -42,11 +40,9 @@ Kinematics::Kinematics(  int max_rpm, float wheel_diameter, float wheels_x_dista
 					  //as is 
 				 break;
   
-                }
-	
+                }	
 			Kinematics::rpm rpm;
-			// float linear_y is zero  and convert m/s to m/min
-			
+			// float linear_y is zero  and convert m/s to m/min			
 			tangential_vel = angular_z * 60 * ((wheels_x_distance / 2) + (wheels_y_distance/ 2));
 			
 			x_rpm = linear_x * 60/ wheel_circumference;	
@@ -54,7 +50,6 @@ Kinematics::Kinematics(  int max_rpm, float wheel_diameter, float wheels_x_dista
 			tan_rpm =  tangential_vel / wheel_circumference;
 			
 			//calculate for the target motor RPM and direction-front-left motor
-
 			//front-left motor
 			rpm.motor1 = x_rpm - y_rpm - tan_rpm;
 			rpm.motor1 = constrain(rpm.motor1, -max_rpm, max_rpm);
@@ -105,7 +100,6 @@ Kinematics::Kinematics(  int max_rpm, float wheel_diameter, float wheels_x_dista
 /*     																											 */
 /*     																											 */
 /*---------------------------------------------------------------------------------------------------------------*/
-
 Controller::Controller(driver motor_driver, int pwm_pin, int motor_pinA, int motor_pinB)  
 {
 	motor_driver_ = motor_driver;
@@ -116,23 +110,24 @@ Controller::Controller(driver motor_driver, int pwm_pin, int motor_pinA, int mot
     switch (motor_driver)
     {
         case MOTO:
+		    enableMOTOR( motor_driver_); 
             pinMode(pwm_pin_, OUTPUT);
             pinMode(motor_pinA_, OUTPUT);
             pinMode(motor_pinB_, OUTPUT);
-            enableMOTO( motor_driver_);
+            
             //ensure that the motor is in neutral state during bootup
             analogWrite(pwm_pin_, abs(0));
+			break;
 
-            break;
 
         case BIG_MOTO:
+		    enableMOTOR( motor_driver_);
             pinMode(motor_pinA_, OUTPUT);
             pinMode(motor_pinB_, OUTPUT);
 
             //ensure that the motor is in neutral state during bootup
             analogWrite(motor_pinB_, 0);
             analogWrite(motor_pinA_, 0);
-
             break;
 
     }
@@ -162,7 +157,36 @@ void Controller::spin(int pwm)
             analogWrite(pwm_pin_, abs(pwm));
 
             break;
+			
+     case MOTO1:
+            if(pwm > 0)
+            {
+                digitalWrite(motor_pinA_, HIGH);
+                digitalWrite(motor_pinB_, LOW);
+            }
+            else if(pwm < 0)
+            {
+                digitalWrite(motor_pinA_, LOW);
+                digitalWrite(motor_pinB_, HIGH);
+            }
+            analogWrite(pwm_pin_, abs(pwm));
 
+            break;
+			
+     case MOTO2:
+            if(pwm > 0)
+            {
+                digitalWrite(motor_pinA_, HIGH);
+                digitalWrite(motor_pinB_, LOW);
+            }
+            else if(pwm < 0)
+            {
+                digitalWrite(motor_pinA_, LOW);
+                digitalWrite(motor_pinB_, HIGH);
+            }
+            analogWrite(pwm_pin_, abs(pwm));
+
+            break;			
         case BIG_MOTO:
             if (pwm > 0)
             {
@@ -185,17 +209,44 @@ void Controller::spin(int pwm)
    
     }
 }
-void Controller::enableMOTO(driver motor_driver)
+
+
+void Controller::enableMOTOR(driver motor_driver)
 {
     switch(motor_driver)
     {
-        case MOTO:    
+        case MOTO:   // Teensy 2WD
+		pinMode(MOTOR1_MOTO_EN1,OUTPUT);
+		pinMode(MOTOR2_MOTO_EN2,OUTPUT);
+		digitalWrite(MOTOR1_MOTO_EN1, HIGH);
+        digitalWrite(MOTOR2_MOTO_EN2, HIGH); 
 		break;
 		
-        case BIG_MOTO:             
+		case MOTO1:  // Teensy 4WD
+		pinMode(MOTOR2_MOTO_EN2,OUTPUT);
+		pinMode(MOTOR4_MOTO_EN4,OUTPUT);
+		
+        digitalWrite(MOTOR2_MOTO_EN2, HIGH); 
+        digitalWrite(MOTOR4_MOTO_EN4, HIGH); 
+        break;
+		
+	   case MOTO2:  // MEGA  4WD
+		pinMode(MOTOR1_MOTO_EN1,OUTPUT);
+		pinMode(MOTOR2_MOTO_EN2,OUTPUT);
+		pinMode(MOTOR3_MOTO_EN3,OUTPUT);
+		pinMode(MOTOR4_MOTO_EN4,OUTPUT);
+		
+		digitalWrite(MOTOR1_MOTO_EN1, HIGH);
+        digitalWrite(MOTOR2_MOTO_EN2, HIGH); 
+		digitalWrite(MOTOR3_MOTO_EN3, HIGH);
+        digitalWrite(MOTOR4_MOTO_EN4, HIGH); 
+        break;
+		
+	   case BIG_MOTO:             
 		break;                  
     }
-}
+	
+}  
 /* ------------------------------------------------------------------------------------------------------------- */
 /*     																											 */
 /*     																											 */
