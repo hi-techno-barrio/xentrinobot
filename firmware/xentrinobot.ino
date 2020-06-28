@@ -5,14 +5,6 @@ Hi-Techno Barrio
 Project: XentrinoBot
 Funded by: TAPI-DOST
 */
-//  Christopher Coballes
-//  Hi-Techno Barrio
-//
-
-//  Christopher Coballes
-//  Hi-Techno Barrio
-//
-
 #if (ARDUINO >= 100)
  #include <Arduino.h>
 #else
@@ -31,14 +23,6 @@ Funded by: TAPI-DOST
 //Motor Shield headers
 #include <Wire.h>
 
-// #define ENCODER_OPTIMIZE_INTERRUPTS // comment this out on Non-Teensy boards
-#define IMU_PUBLISH_RATE 20 //hz
-#define COMMAND_RATE 20 //hz
-#define DEBUG_RATE 5
-
-// Motor Pin 1 & Pin 2
-//Encoder Encoder1(2, 17);
-//Encoder Encoder2(3, 15);
 Encoder Encoder1(MOTOR1_ENCODER_A, MOTOR1_ENCODER_B);
 Encoder Encoder2(MOTOR2_ENCODER_A, MOTOR2_ENCODER_B);
 Encoder Encoder3(MOTOR3_ENCODER_A, MOTOR3_ENCODER_B);
@@ -84,6 +68,7 @@ void setup() {
 //  nh.subscribe(cmd_sub);
     nh.advertise(raw_vel_pub);
 //  nh.advertise(raw_imu_pub);
+    // enable moto
    
    while (!nh.connected())
     {
@@ -183,10 +168,10 @@ void moveBase()
     Kinematics::rpm req_rpm = kinematics.expected_RPM(g_req_linear_vel_x, g_req_linear_vel_y, g_req_angular_vel_z);
 
   //get the current speed of each motor
-    int current_rpm1 =  get_actual_RPM (Encoder1.read(),COUNTS_PER_REV);
-    int current_rpm2 =  get_actual_RPM (Encoder2.read(),COUNTS_PER_REV);
-    int current_rpm3 =  get_actual_RPM (Encoder3.read(),COUNTS_PER_REV);
-    int current_rpm4 =  get_actual_RPM (Encoder4.read(),COUNTS_PER_REV);
+    int current_rpm1 =  get_actual_RPM (Encoder1.read(),MAX_RPM);
+    int current_rpm2 =  get_actual_RPM (Encoder2.read(),MAX_RPM);
+    int current_rpm3 =  get_actual_RPM (Encoder3.read(),MAX_RPM);
+    int current_rpm4 =  get_actual_RPM (Encoder4.read(),MAX_RPM);
     
   //the required rpm is capped at -/+ MAX_RPM to prevent the PID from having too much error
   //the PWM value sent to the motor driver is the calculated PID based on required RPM vs measured RPM
