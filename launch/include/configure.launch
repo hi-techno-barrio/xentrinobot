@@ -6,12 +6,6 @@
     </node>
     
 
-
-
-
-
-    <!-- Start ROS communication between the robot's computer and Linorobot base -->
-
  <!--   <include file="$(find xentrinobot)/launch/include/ros_serial.launch" /> -->
 
     <!-- IMU Relay and Filter -->
