@@ -3,9 +3,9 @@
 
 #define DEBUG 1
 
-#define K_P 0.6 // P constant
-#define K_I  0.65 // 0.3 // I constant
-#define K_D 0.5 // D constant
+#define K_P 0.6    // P constant
+#define K_I  0.65  // 0.3 // I constant
+#define K_D 0.5    // D constant
 
 //define your robot' specs here
 #define MAX_RPM 105                // motor's maximum RPM
@@ -22,22 +22,22 @@
 #define DEBUG_RATE 5
 
 //uncomment the base you're building
-#define XENTRINO_BASE DIFFERENTIAL_DRIVE            // 2WD and Tracked robot w/ 2 motors
+#define XENTRINO_BASE DIFFERENTIAL_DRIVE // 2WD and Tracked robot w/ 2 motors
 // #define XENTRINO_BASE SKID_STEER      // 4WD robot
 // #define XENTRINO_BASE ACKERMANN       // 2WD Car-like steering robot w/ 2 motors
 // #define XENTRINO_BASE ACKERMANN1      // 1WD Car-like steering robot w/ 1 motor
 // #define XENTRINO_BASE MECANUM         // 4WD Mecanum drive robot
 
 //uncomment the motor driver you're using
-#define TEENSY_2WD_DRIVER
-//#define 4WD_TEENSY_MOTO_DRIVER
-//#define 4WD_MEGA_MOTO_DRIVER
+//#define TEENSY_2WD_DRIVER
+//#define TEENSY_4WD_DRIVER
+#define MEGA_4WD_DRIVER
 //#define USE_BTS7960_DRIVER
 //#define USE_ESC
 
 //uncomment the IMU you're using
 // #define USE_GY85_IMU
- #define USE_MPU6050_IMU
+#define USE_MPU6050_IMU
 // #define USE_MPU9150_IMU
 // #define USE_MPU9250_IMU
 
@@ -66,7 +66,6 @@ ROBOT ORIENTATION
   #define MOTOR4_ENCODER_A  24  // inverted
   #define MOTOR4_ENCODER_B  24
   
-
 // MOTOR 1
   #define MOTOR1_PWM  4   // D5 PWM  motor 1
   #define MOTOR1_IN_A 2   // D7 Clock wise Motor 1
@@ -132,18 +131,21 @@ ROBOT ORIENTATION
   #define MOTOR4_IN_B 5
   
 // ENABLE MOTORS  
+  #define MOTOR1_MOTO1_EN1 13
   #define MOTOR2_MOTO1_EN2 13
-  #define MOTOR4_MOTO1_EN4  6 
-
+  #define MOTOR3_MOTO1_EN3  6   
+  #define MOTOR4_MOTO1_EN4  6
+   
   #define PWM_MAX pow(2, PWM_BITS) - 1
   #define PWM_MIN -PWM_MAX
 #endif 
 
+
 // MEGA_4WD_DRIVER
-#ifdef MEGA_4WD_DRIVER
+ #ifdef MEGA_4WD_DRIVER
   #define MOTOR_DRIVER MOTO2
 
-/// ENCODER PINS
+/// ENCODER  PINS
   #define MOTOR1_ENCODER_A 15
   #define MOTOR1_ENCODER_B  3 
 
@@ -157,7 +159,7 @@ ROBOT ORIENTATION
   #define MOTOR4_ENCODER_B 19
 
 // MOTOR 1
-  #define MOTOR1_PWM  43
+  #define MOTOR1_PWM  46
   #define MOTOR1_IN_A 34
   #define MOTOR1_IN_B 36
 // MOTOR 2
@@ -173,10 +175,10 @@ ROBOT ORIENTATION
   #define MOTOR4_IN_A 8
   #define MOTOR4_IN_B 11
   
-  #define MOTOR1_MOTO2_EN1 A6  //activalte motor  1 
-  #define MOTOR2_MOTO2_EN2 A4  //activalte motor  2 
-  #define MOTOR3_MOTO2_EN3 A15  //activalte motor 3
-  #define MOTOR4_MOTO2_EN4 A13  //activalte motor 4 
+  #define MOTOR1_MOTO_EN1 A6   // activalte motor  1 
+  #define MOTOR2_MOTO_EN2 A4   // activalte motor  2 
+  #define MOTOR3_MOTO_EN3 A15  // activalte motor 3
+  #define MOTOR4_MOTO_EN4 A13  // activalte motor 4 
   
   #define PWM_MAX pow(2, PWM_BITS) - 1
   #define PWM_MIN -PWM_MAX
