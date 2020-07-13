@@ -118,8 +118,27 @@ Controller::Controller(driver motor_driver, int pwm_pin, int motor_pinA, int mot
             //ensure that the motor is in neutral state during bootup
             analogWrite(pwm_pin_, abs(0));
 			break;
-
-
+			
+     case MOTO1:
+		    enableMOTOR( motor_driver_); 
+            pinMode(pwm_pin_, OUTPUT);
+            pinMode(motor_pinA_, OUTPUT);
+            pinMode(motor_pinB_, OUTPUT);
+            
+            //ensure that the motor is in neutral state during bootup
+            analogWrite(pwm_pin_, abs(0));
+			break;
+			
+       case MOTO2:
+		    enableMOTOR( motor_driver_); 
+            pinMode(pwm_pin_, OUTPUT);
+            pinMode(motor_pinA_, OUTPUT);
+            pinMode(motor_pinB_, OUTPUT);
+            
+            //ensure that the motor is in neutral state during bootup
+            analogWrite(pwm_pin_, abs(0));
+			break;
+			
         case BIG_MOTO:
 		    enableMOTOR( motor_driver_);
             pinMode(motor_pinA_, OUTPUT);
