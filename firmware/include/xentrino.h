@@ -51,9 +51,10 @@ class Kinematics
 class Controller
 {
     public:
-        enum driver {MOTO,MOTO1,MOTO2, BIG_MOTO};
+        enum driver {L298P,MOTO2,MOTO,MOTO1, BIG_MOTO};
         Controller(driver motor_driver, int pwm_pin, int motor_pinA, int motor_pinB);
         void spin(int pwm);
+		void testMotor(int pwm);
 		void enableMOTOR(driver motor_driver);
 
    private:
@@ -61,10 +62,7 @@ class Controller
         driver motor_driver_;
         int pwm_pin_;
         int motor_pinA_;
-        int motor_pinB_;
-       
-      
-       
+        int motor_pinB_;      
 };
 
 class PID
@@ -85,20 +83,55 @@ class PID
         double prev_error_;
 };
 
-/*
-class Decoder
+
+class Velocity 
 {
 public:
-	Decoder(uint8_t pin1, uint8_t pin2, int counts_per_rev);
-	int getRPM();
+    Velocity(int counts_per_rev );
+	int getRPM (int ticks);
 	
-	private:
+private:
+	int  ticks_ ;
 	int counts_per_rev_;
 	unsigned long prev_update_time_;
     long prev_encoder_ticks_;
-	int pin1_;
-	int pin2_;
-	//Encoder_internal_state_t encoder;
 };
-*/
+
+
+class Kalman {
+
+public:
+     Kalman(float N_angle,float N_bias, float N_measure, float setAngle,float setBias);
+    // The angle should be in degrees and the rate should be in degrees per second and the delta time in seconds
+    float getAngle(float newAngle, float newRate, float dt);	
+    struct tuner
+        {
+           float Q_angle; // Process noise variance for the accelerometer
+           float Q_bias; // Process noise variance for the gyro bias
+           float R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
+        };
+
+    /* These are used to tune the Kalman filter */
+	/**
+     * setQbias(float Q_bias)
+     * Default value (0.003f) is in Kalman.cpp. 
+     * Raise this to follow input more closely,
+     * lower this to smooth result of kalman filter.
+     */
+    void setFilterNoises( float Q_angle, float Q_bias, float R_measure);
+	void getFilterNoises( );
+    	
+private:
+    /* Kalman filter variables */
+    float Q_angle; // Process noise variance for the accelerometer
+    float Q_bias; // Process noise variance for the gyro bias
+    float R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
+
+    float angle; // The angle calculated by the Kalman filter - part of the 2x1 state vector
+    float bias; // The gyro bias calculated by the Kalman filter - part of the 2x1 state vector
+    float rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
+
+    float P[2][2]; // Error covariance matrix - This is a 2x2 matrix
+};
+
 #endif
