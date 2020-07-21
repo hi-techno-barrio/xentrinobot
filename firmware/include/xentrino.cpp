@@ -109,7 +109,7 @@ Controller::Controller(driver motor_driver, int pwm_pin, int motor_pinA, int mot
 	
     switch (motor_driver)
     {
-        case MOTO:
+         case L298P:
 		    enableMOTOR( motor_driver_); 
             pinMode(pwm_pin_, OUTPUT);
             pinMode(motor_pinA_, OUTPUT);
@@ -119,7 +119,17 @@ Controller::Controller(driver motor_driver, int pwm_pin, int motor_pinA, int mot
             analogWrite(pwm_pin_, abs(0));
 			break;
 			
-     case MOTO1:
+		case MOTO:
+		    enableMOTOR( motor_driver_); 
+            pinMode(pwm_pin_, OUTPUT);
+            pinMode(motor_pinA_, OUTPUT);
+            pinMode(motor_pinB_, OUTPUT);
+            
+            //ensure that the motor is in neutral state during bootup
+            analogWrite(pwm_pin_, abs(0));
+			break;
+			
+       case MOTO1:
 		    enableMOTOR( motor_driver_); 
             pinMode(pwm_pin_, OUTPUT);
             pinMode(motor_pinA_, OUTPUT);
@@ -162,6 +172,22 @@ void Controller::spin(int pwm)
 {
     switch (motor_driver_)
     {
+		
+		case L298P:
+            if(pwm > 0)
+            {
+                digitalWrite(motor_pinA_, HIGH);
+                digitalWrite(motor_pinB_, LOW);
+            }
+            else if(pwm < 0)
+            {
+                digitalWrite(motor_pinA_, LOW);
+                digitalWrite(motor_pinB_, HIGH);
+            }
+            analogWrite(pwm_pin_, abs(pwm));
+
+            break;
+			
         case MOTO:
             if(pwm > 0)
             {
@@ -228,8 +254,21 @@ void Controller::spin(int pwm)
    
     }
 }
+/* ------------------------------------------------------------------------------------------------------------- */
+/*     																											 */
+/*     																											 */
+/*     																											 */
+/*---------------------------------------------------------------------------------------------------------------*/
+void  Controller::testMotor(int pwm)
+{
+	 analogWrite(pwm_pin_, abs(pwm));
+}
 
-
+/* ------------------------------------------------------------------------------------------------------------- */
+/*     																											 */
+/*     																											 */
+/*     																											 */
+/*---------------------------------------------------------------------------------------------------------------*/
 void Controller::enableMOTOR(driver motor_driver)
 {
     switch(motor_driver)
@@ -314,22 +353,14 @@ void PID::updateConstants(float kp, float ki, float kd)
 /*     																											 */
 /*     																											 */
 /*---------------------------------------------------------------------------------------------------------------*/
-// Encoder_internal_state_t * Encoder::interruptArgs[];
-/*
-Decoder::Decoder(uint8_t pin1, uint8_t pin2, int counts_per_rev)
- 
+Velocity::Velocity(int counts_per_rev )
 {
-	 Encoder pass ;
-    pass	 =  new  Encpder( pin1,pin2);
-	//Encoder pass ;   = new Encoder(int  pin1,int pin2 );
-    pin1_ = pin1;
-	pin2_ = pin2;
-    counts_per_rev_ = counts_per_rev;
-	//prev_update_time_ = ;
-     //long prev_encoder_ticks_ =;
+	//ticks_ = ticks ;
+	counts_per_rev_ = counts_per_rev ;
 }
-int Decoder::getRPM(){
-		long  int encoder_ticks = pass.read();
+int Velocity::getRPM (int ticks)
+{
+		long encoder_ticks = ticks ;
 		//this function calculates the motor's RPM based on encoder ticks and delta time
 		unsigned long current_time = millis();
 		unsigned long dt = current_time - prev_update_time_;
@@ -343,9 +374,94 @@ int Decoder::getRPM(){
 		prev_update_time_ = current_time;
 		prev_encoder_ticks_ = encoder_ticks;
 		
-		return (delta_ticks / counts_per_rev_) / dtm;
-	}
-	
+		return (delta_ticks / counts_per_rev_) / dtm;		
+}
+
+/* ------------------------------------------------------------------------------------------------------------- */
+/*     																											 */
+/*     																											 */
+/*     																											 */
+/*---------------------------------------------------------------------------------------------------------------*/
+Kalman::Kalman(float N_angle,float N_bias, float N_measure, float setAngle,float setBias) {
+    /* We will set the variables like so, these can also be tuned by the user */
+    Q_angle = N_angle;    //   0.001f;
+    Q_bias = N_bias;     //   0.003f;
+    R_measure = N_measure;  //   0.03f;
+    
+    angle = setAngle ;  //   0.0f; // Reset the angle
+    bias = setBias ;    //   0.0f; // Reset bias
+
+    P[0][0] = 0.0f; // Since we assume that the bias is 0 and we know the starting angle (use setAngle), the error covariance matrix is set like so - see: http://en.wikipedia.org/wiki/Kalman_filter#Example_application.2C_technical
+    P[0][1] = 0.0f;
+    P[1][0] = 0.0f;
+    P[1][1] = 0.0f;
+};
+
+// The angle should be in degrees and the rate should be in degrees per second and the delta time in seconds
+float Kalman::getAngle(float newAngle, float newRate, float dt) {
+    // KasBot V2  -  Kalman filter module - http://www.x-firm.com/?page_id=145
+    // Modified by Kristian Lauszus
+    // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
+
+    // Discrete Kalman filter time update equations - Time Update ("Predict")
+    // Update xhat - Project the state ahead
+    /* Step 1 */
+    rate = newRate - bias;
+    angle += dt * rate;
+
+    // Update estimation error covariance - Project the error covariance ahead
+    /* Step 2 */
+    P[0][0] += dt * (dt*P[1][1] - P[0][1] - P[1][0] + Q_angle);
+    P[0][1] -= dt * P[1][1];
+    P[1][0] -= dt * P[1][1];
+    P[1][1] += Q_bias * dt;
+
+    // Discrete Kalman filter measurement update equations - Measurement Update ("Correct")
+    // Calculate Kalman gain - Compute the Kalman gain
+    /* Step 4 */
+    float S = P[0][0] + R_measure; // Estimate error
+    /* Step 5 */
+    float K[2]; // Kalman gain - This is a 2x1 vector
+    K[0] = P[0][0] / S;
+    K[1] = P[1][0] / S;
+
+    // Calculate angle and bias - Update estimate with measurement zk (newAngle)
+    /* Step 3 */
+    float y = newAngle - angle; // Angle difference
+    /* Step 6 */
+    angle += K[0] * y;
+    bias += K[1] * y;
+
+    // Calculate estimation error covariance - Update the error covariance
+    /* Step 7 */
+    float P00_temp = P[0][0];
+    float P01_temp = P[0][1];
+
+    P[0][0] -= K[0] * P00_temp;
+    P[0][1] -= K[0] * P01_temp;
+    P[1][0] -= K[1] * P00_temp;
+    P[1][1] -= K[1] * P01_temp;
+
+    return angle;
+};
+/* These are used to tune the Kalman filter */
+void Kalman::setFilterNoises( float Q_angle, float Q_bias, float R_measure)
+{
+	Kalman::tuner tuner1; 
+tuner1.Q_angle = Q_angle;
+tuner1.Q_bias = Q_bias;
+tuner1.R_measure = R_measure ;
+}
+
+void Kalman::getFilterNoises()
+{
+	Kalman::tuner tuner1; 
+Q_angle = tuner1.Q_angle;
+Q_bias = tuner1.Q_bias ;
+R_measure = tuner1.R_measure;
+}
+
+/*	
 	Link:
 	http://www.daslhub.org/unlv/wiki/doku.php?id=robotino_vision_pickup
 	https://javatea.adiary.jp/060
