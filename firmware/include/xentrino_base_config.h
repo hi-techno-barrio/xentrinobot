@@ -4,7 +4,7 @@
 #define DEBUG 1
 
 #define K_P 0.6    // P constant
-#define K_I  0.65  // 0.3 // I constant
+#define K_I  0.3 //0.65  //  // I constant
 #define K_D 0.5    // D constant
 
 //define your robot' specs here
@@ -31,6 +31,8 @@
 //uncomment the motor driver you're using
 //#define TEENSY_2WD_DRIVER
 //#define TEENSY_4WD_DRIVER
+//#define L298P_2WD_DRIVER
+
 #define MEGA_4WD_DRIVER
 //#define USE_BTS7960_DRIVER
 //#define USE_ESC
@@ -49,6 +51,33 @@ ROBOT ORIENTATION
          BACK
 */
 
+
+//TEENSY_2WD_DRIVER
+#ifdef L298P_2WD_DRIVER
+  #define MOTOR_DRIVER L298P
+  
+// ENCODER 1
+  #define MOTOR1_ENCODER_A  2
+  #define MOTOR1_ENCODER_B  3
+// ENCODER 2
+  #define MOTOR2_ENCODER_A   5   // inverted
+  #define MOTOR2_ENCODER_B   4
+
+// MOTOR 1
+  #define MOTOR1_PWM  9   // D5 PWM  motor 1
+  #define MOTOR1_IN_A 7   // D7 Clock wise Motor 1
+  #define MOTOR1_IN_B 8   // D8 Counter clock wise Motor 1
+  
+// MOTOR 2
+  #define MOTOR2_PWM  11   // D6 PWM motor 2
+  #define MOTOR2_IN_A 10   // D4 Clock wise Motor 2
+  #define MOTOR2_IN_B 12   // D9 Counter clock wise Motor 2
+
+  
+  #define PWM_MAX pow(2, PWM_BITS) - 1  //255
+  #define PWM_MIN -PWM_MAX
+#endif 
+
 //TEENSY_2WD_DRIVER
 #ifdef TEENSY_2WD_DRIVER
   #define MOTOR_DRIVER MOTO
@@ -59,13 +88,7 @@ ROBOT ORIENTATION
 // ENCODER 2
   #define MOTOR2_ENCODER_A   6   // inverted
   #define MOTOR2_ENCODER_B   21
-// ENCODER 3
-  #define MOTOR3_ENCODER_A  24
-  #define MOTOR3_ENCODER_B  24
-// ENCODER 4
-  #define MOTOR4_ENCODER_A  24  // inverted
-  #define MOTOR4_ENCODER_B  24
-  
+
 // MOTOR 1
   #define MOTOR1_PWM  4   // D5 PWM  motor 1
   #define MOTOR1_IN_A 2   // D7 Clock wise Motor 1
@@ -75,22 +98,10 @@ ROBOT ORIENTATION
   #define MOTOR2_PWM  3   // D6 PWM motor 2
   #define MOTOR2_IN_A 5   // D4 Clock wise Motor 2
   #define MOTOR2_IN_B 0   // D9 Counter clock wise Motor 2
-// MOTOR 1
-  #define MOTOR3_PWM   24  // D5 PWM  motor 1
-  #define MOTOR3_IN_A  24  // D7 Clock wise Motor 1
-  #define MOTOR3_IN_B  24  // D8 Counter clock wise Motor 1
-  
-// MOTOR 2
-  #define MOTOR4_PWM   24  // D6 PWM motor 2
-  #define MOTOR4_IN_A  24  // D4 Clock wise Motor 2
-  #define MOTOR4_IN_B   24 // D9 Counter clock wise Motor 2
-    
-  
-// ENABLE MOTORS
+
   #define MOTOR1_MOTO_EN1  7    // Activalte motor 1 
   #define MOTOR2_MOTO_EN2  8    // Activalte motor 2 
-  #define MOTOR3_MOTO_EN3  24   // Activalte motor 1 
-  #define MOTOR4_MOTO_EN4  24   // Activalte motor 2 
+
   
   #define PWM_MAX pow(2, PWM_BITS) - 1  //255
   #define PWM_MIN -PWM_MAX
@@ -146,11 +157,11 @@ ROBOT ORIENTATION
   #define MOTOR_DRIVER MOTO2
 
 /// ENCODER  PINS
-  #define MOTOR1_ENCODER_A 15
-  #define MOTOR1_ENCODER_B  3 
+  #define MOTOR1_ENCODER_A 3
+  #define MOTOR1_ENCODER_B 15 
 
-  #define MOTOR2_ENCODER_A 17
-  #define MOTOR2_ENCODER_B 2 
+  #define MOTOR2_ENCODER_A 2
+  #define MOTOR2_ENCODER_B 17
 
   #define MOTOR3_ENCODER_A 40
   #define MOTOR3_ENCODER_B 18 
