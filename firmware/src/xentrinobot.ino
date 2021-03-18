@@ -103,7 +103,7 @@ void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg)
  * 
  * 
  -------------------------------------------------------------------------*/
- void PIDCallback(const std_msgs::Float32MultiArray& pid_) 
+ void PIDCallback(const std_msgs::Float32MultiArray::ConstPtr& pid_) 
 {
   float p,i,d;
     p = pid_.data.at[0];
