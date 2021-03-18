@@ -14,8 +14,8 @@ Funded by: TAPI-DOST
 #include <stdio.h>
 #include <ros.h>
 #include <ros/time.h>
-#include <std_msgs/Float32MultiArray.h>
 #include <geometry_msgs/Twist.h>
+#include <std_msgs/Float32MultiArray.h>
 #include "xentrino_base_config.h"
 #include "Encoder.h"
 #include "xentrino.h"
@@ -106,13 +106,13 @@ void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg)
  void PIDCallback(const std_msgs::Float32MultiArray& pid_) 
 {
   float p,i,d;
-    p = pid_.data[0];
-    i = pid_.data[1];
-    d = pid_.data[2];
+    p = pid_.data.at[0];
+    i = pid_.data.at[1];
+    d = pid_.data.at[2];
     motor1_pid.updateConstants(p, i, d);
     motor2_pid.updateConstants(p, i, d);
-//  motor3_pid.updateConstants(p, i, d);
-//  motor4_pid.updateConstants(p, i, d);
+    motor3_pid.updateConstants(p, i, d);
+    motor4_pid.updateConstants(p, i, d);
 } 
 /*------------------------------------------------------------------------
  * 
