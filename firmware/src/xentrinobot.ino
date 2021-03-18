@@ -46,7 +46,7 @@ float g_req_angular_vel_z = 0;
 int Arr[2];
 unsigned long g_prev_command_time = 0;
 
-void PIDCallback(const std_msgs::Float32MultiArray& pid_);
+void PIDCallback(const std_msgs::Float32MultiArray::ConstPtr& pid_);
 void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg);
 
 ros::NodeHandle nh;
