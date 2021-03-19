@@ -14,6 +14,7 @@ Funded by: TAPI-DOST
 #include <stdio.h>
 #include <ros.h>
 #include <ros/time.h>
+#include <geometry_msgs/Accel.h>
 #include <geometry_msgs/Twist.h>
 #include <control_msgs/PidState.h>
 #include "xentrino_base_config.h"
@@ -50,12 +51,14 @@ void PIDCallback(const std_msgs::Float32MultiArray::ConstPtr& pid_);
 void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg);
 
 ros::NodeHandle nh;
-std_msgs::Float32MultiArray pid;
+
 
 ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
 ros::Subscriber<contol_msgs::PidState> pid_sub("pid", PIDCallback);
 
-geometry_msgs::Twist raw_vel_msg;
+control_msgs::PidState pid;
+
+geometry_msgs::Accel raw_vel_msg;
 ros::Publisher raw_vel_pub("raw_vel", &raw_vel_msg);
 
 ros::Time current_time;
@@ -65,9 +68,9 @@ void setup() {
     nh.initNode();
     nh.getHardware()->setBaud(57600);
     nh.subscribe(pid_sub);
-//  nh.subscribe(cmd_sub);
+    nh.subscribe(cmd_sub);
     nh.advertise(raw_vel_pub);
-//  nh.advertise(raw_imu_pub);
+    nh.advertise(raw_imu_pub);
     // enable moto
    
    while (!nh.connected())
