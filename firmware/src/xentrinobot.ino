@@ -15,7 +15,7 @@ Funded by: TAPI-DOST
 #include <ros.h>
 #include <ros/time.h>
 #include <geometry_msgs/Twist.h>
-#include <std_msgs/Float32MultiArray.h>
+#include <control_msgs/PidState.h>
 #include "xentrino_base_config.h"
 #include "Encoder.h"
 #include "xentrino.h"
@@ -53,7 +53,7 @@ ros::NodeHandle nh;
 std_msgs::Float32MultiArray pid;
 
 ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
-ros::Subscriber<std_msgs::Float32MultiArray> pid_sub("pid", PIDCallback);
+ros::Subscriber<contol_msgs::PidState> pid_sub("pid", PIDCallback);
 
 geometry_msgs::Twist raw_vel_msg;
 ros::Publisher raw_vel_pub("raw_vel", &raw_vel_msg);
@@ -103,12 +103,12 @@ void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg)
  * 
  * 
  -------------------------------------------------------------------------*/
- void PIDCallback(const std_msgs::Float32MultiArray::ConstPtr& pid_) 
+ void PIDCallback(control_msgs::PidState& pid_) 
 {
   float p,i,d;
-    p = pid_->data.at[0];
-    i = pid_->data.at[1];
-    d = pid_->data.at[2];
+    p = pid_.p_term;
+    i = pid_.i_term;
+    d = pid_.d_term;
     motor1_pid.updateConstants(p, i, d);
     motor2_pid.updateConstants(p, i, d);
     motor3_pid.updateConstants(p, i, d);
