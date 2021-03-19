@@ -47,19 +47,19 @@ float g_req_angular_vel_z = 0;
 int Arr[2];
 unsigned long g_prev_command_time = 0;
 
-void PIDCallback(const std_msgs::Float32MultiArray::ConstPtr& pid_);
+void PIDCallback(const control_msgs::PidState& pid_);
 void twist_to_cmd_RPM(const geometry_msgs::Twist& cmd_msg);
 
 ros::NodeHandle nh;
 
-
 ros::Subscriber<geometry_msgs::Twist> sub("cmd_vel", twist_to_cmd_RPM);
 ros::Subscriber<contol_msgs::PidState> pid_sub("pid", PIDCallback);
 
-control_msgs::PidState pid;
-
 geometry_msgs::Accel raw_vel_msg;
 ros::Publisher raw_vel_pub("raw_vel", &raw_vel_msg);
+
+sensor_msgs::Imu raw_imu_msg;
+ros::Publisher raw_imu_pub("raw_imu", &raw_imu_msg);
 
 ros::Time current_time;
 ros::Time last_time;
